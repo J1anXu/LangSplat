@@ -1,4 +1,5 @@
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"  # 设置为你希望使用的 GPU 的编号
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     dataset_path = args.dataset_path
     num_epochs = args.num_epochs
     data_dir = f"{dataset_path}/language_features"
-    os.makedirs(f'ckpt/{args.dataset_name}', exist_ok=True)
+    os.makedirs(f'../ckpts/{args.dataset_name}', exist_ok=True)
     train_dataset = Autoencoder_dataset(data_dir)
     train_loader = DataLoader(
         dataset=train_dataset,
