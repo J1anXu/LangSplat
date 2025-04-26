@@ -28,7 +28,7 @@ if __name__ == '__main__':
     encoder_hidden_dims = args.encoder_dims
     decoder_hidden_dims = args.decoder_dims
     dataset_path = args.dataset_path
-    ckpt_path = f"ckpt/{dataset_name}/best_ckpt.pth"
+    ckpt_path = f"../ckpts/{dataset_name}/best_ckpt.pth"
 
     data_dir = f"{dataset_path}/language_features"
     output_dir = f"{dataset_path}/language_features_dim3"
@@ -75,3 +75,4 @@ if __name__ == '__main__':
         path = os.path.join(output_dir, k)
         np.save(path, features[start:start+v])
         start += v
+    print(f"Finish saving the features, from {dataset_path}/language_features to {dataset_path}/language_features_dim3")

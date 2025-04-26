@@ -62,7 +62,7 @@ if __name__ == '__main__':
     model = Autoencoder(encoder_hidden_dims, decoder_hidden_dims).to("cuda:0")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    logdir = f'ckpt/{args.dataset_name}'
+    logdir = f'../ckpts/{args.dataset_name}'
     tb_writer = SummaryWriter(logdir)
 
     best_eval_loss = 100.0
@@ -102,10 +102,10 @@ if __name__ == '__main__':
             if eval_loss < best_eval_loss:
                 best_eval_loss = eval_loss
                 best_epoch = epoch
-                torch.save(model.state_dict(), f'ckpt/{args.dataset_name}/best_ckpt.pth')
+                torch.save(model.state_dict(), f'../ckpts/{args.dataset_name}/best_ckpt.pth')
                 
             if epoch % 10 == 0:
-                torch.save(model.state_dict(), f'ckpt/{args.dataset_name}/{epoch}_ckpt.pth')
+                torch.save(model.state_dict(), f'../ckpts/{args.dataset_name}/{epoch}_ckpt.pth')
             
     print(f"best_epoch: {best_epoch}")
     print("best_loss: {:.8f}".format(best_eval_loss))
