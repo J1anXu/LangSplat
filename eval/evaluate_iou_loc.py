@@ -58,6 +58,8 @@ def eval_gt_lerfdata(json_folder: Union[str, Path] = None, ouput_path: Path = No
     """
     gt_json_paths = sorted(glob.glob(os.path.join(str(json_folder), 'frame_*.json')))
     img_paths = sorted(glob.glob(os.path.join(str(json_folder), 'frame_*.jpg')))
+    print(f'len(gt_json_paths) in {json_folder}: {len(gt_json_paths)}')
+    print(f'len(img_paths) in {json_folder}: {len(img_paths)}')
     gt_ann = {}
     for js_path in gt_json_paths:
         img_ann = defaultdict(dict)
