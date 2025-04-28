@@ -58,7 +58,7 @@ if __name__ == '__main__':
     encoder_hidden_dims = args.encoder_dims
     decoder_hidden_dims = args.decoder_dims
 
-    model = Autoencoder(encoder_hidden_dims, decoder_hidden_dims).to("cuda:0")
+    model = Autoencoder(encoder_hidden_dims, decoder_hidden_dims).to("cuda:3")
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     logdir = f'ckpt/{args.dataset_name}'
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             eval_loss = 0.0
             model.eval()
             for idx, feature in enumerate(test_loader):
-                data = feature.to("cuda:0")
+                data = feature.to("cuda:3")
                 with torch.no_grad():
                     outputs = model(data) 
                 loss = l2_loss(outputs, data) + cos_loss(outputs, data)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
                 best_eval_loss = eval_loss
                 best_epoch = epoch
                 torch.save(model.state_dict(), f'ckpt/{args.dataset_name}/best_ckpt.pth')
-                
+
             if epoch % 10 == 0:
                 torch.save(model.state_dict(), f'ckpt/{args.dataset_name}/{epoch}_ckpt.pth')
             
