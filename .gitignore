@@ -10,3 +10,5 @@ tensorboard_3d
 events.out*
 ckpts
 release
+autoencoder/
+eval_result/
