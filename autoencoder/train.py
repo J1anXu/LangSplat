@@ -58,7 +58,7 @@ if __name__ == '__main__':
     encoder_hidden_dims = args.encoder_dims
     decoder_hidden_dims = args.decoder_dims
 
-    model = Autoencoder(encoder_hidden_dims, decoder_hidden_dims).to("cuda:3")
+    model = Autoencoder(encoder_hidden_dims, decoder_hidden_dims).to('cuda')
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     logdir = f'ckpt/{args.dataset_name}'
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     for epoch in tqdm(range(num_epochs)):
         model.train()
         for idx, feature in enumerate(train_loader):
-            data = feature.to("cuda:0")
+            data = feature.to('cuda')
             outputs_dim3 = model.encode(data)
             outputs = model.decode(outputs_dim3)
             
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             eval_loss = 0.0
             model.eval()
             for idx, feature in enumerate(test_loader):
-                data = feature.to("cuda:3")
+                data = feature.to('cuda')
                 with torch.no_grad():
                     outputs = model(data) 
                 loss = l2_loss(outputs, data) + cos_loss(outputs, data)
