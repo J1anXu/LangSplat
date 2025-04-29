@@ -51,7 +51,7 @@ class GaussianModel:
         self._rotation = torch.empty(0)
         self._opacity = torch.empty(0)
         self._language_feature = None
-        
+        self.admm = False
         self.max_radii2D = torch.empty(0)
         self.xyz_gradient_accum = torch.empty(0)
         self.denom = torch.empty(0)
@@ -200,7 +200,24 @@ class GaussianModel:
         self.xyz_gradient_accum = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
         self.denom = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
         
-        if training_args.include_feature:
+        if training_args.admm:
+            print("开启ADMM优化,所有的参数都需要进行优化")
+            if self._language_feature is None or self._language_feature.shape[0] != self._xyz.shape[0]:
+                # 开始feature训练的时候，往模型中加入language feature参数
+                language_feature = torch.zeros((self._xyz.shape[0], 3), device="cuda")
+                self._language_feature = nn.Parameter(language_feature.requires_grad_(True))
+            l = [
+                {'params': [self._xyz], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "xyz"},
+                # TODO 颜色可以考虑去掉
+                {'params': [self._features_dc], 'lr': training_args.feature_lr, "name": "f_dc"},
+                {'params': [self._features_rest], 'lr': training_args.feature_lr / 20.0, "name": "f_rest"},
+                {'params': [self._opacity], 'lr': training_args.opacity_lr, "name": "opacity"},
+                {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
+                {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
+                {'params': [self._language_feature], 'lr': training_args.language_feature_lr, "name": "language_feature"},
+            ]
+        elif training_args.include_feature:
+            print("开启feature训练,只优化language_feature")
             if self._language_feature is None or self._language_feature.shape[0] != self._xyz.shape[0]:
                 # 开始feature训练的时候，往模型中加入language feature参数
                 language_feature = torch.zeros((self._xyz.shape[0], 3), device="cuda")
@@ -216,6 +233,7 @@ class GaussianModel:
             self._rotation.requires_grad_(False)
             self._opacity.requires_grad_(False)
         else:
+            print("不开启feature训练,只优化原始gs")
             l = [
                 {'params': [self._xyz], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "xyz"},
                 {'params': [self._features_dc], 'lr': training_args.feature_lr, "name": "f_dc"},
@@ -359,11 +377,14 @@ class GaussianModel:
     def prune_points(self, mask):
         valid_points_mask = ~mask
         optimizable_tensors = self._prune_optimizer(valid_points_mask)
+        print("Available keys in optimizable_tensors:", optimizable_tensors.keys())
 
         self._xyz = optimizable_tensors["xyz"]
         self._features_dc = optimizable_tensors["f_dc"]
         self._features_rest = optimizable_tensors["f_rest"]
         self._opacity = optimizable_tensors["opacity"]
+        if self.admm:
+            self._language_feature = optimizable_tensors["language_feature"]
         # self._language_feature = optimizable_tensors["language_feature"]
         self._scaling = optimizable_tensors["scaling"]
         self._rotation = optimizable_tensors["rotation"]

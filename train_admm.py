@@ -22,6 +22,10 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
+from admm import ADMM, get_pruning_mask
+import wandb
+from datetime import datetime
+WANDB = True
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
@@ -30,21 +34,20 @@ except ImportError:
     
 
 
-def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
+def training(dataset, opt : OptimizationParams, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
     
     first_iter = 0
     tb_writer = prepare_output_and_logger(dataset)
     gaussians = GaussianModel(dataset.sh_degree)
     scene = Scene(dataset, gaussians)
+    gaussians.admm = opt.admm
     gaussians.training_setup(opt)
 
     if opt.include_feature:
         if not checkpoint:
             raise ValueError("checkpoint missing!!!!!")
     if checkpoint:
-        (model_params, first_iter) = torch.load(checkpoint)
-        if len(model_params) == 12 and opt.include_feature:
-            first_iter = 0
+        (model_params, _) = torch.load(checkpoint)
         gaussians.restore(model_params, opt)
         
     bg_color = [1, 1, 1] if dataset.white_background else [0, 0, 0]
@@ -55,6 +58,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     viewpoint_stack = None
     ema_loss_for_log = 0.0
+    ema_admm_for_log = 0.0
     progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
     first_iter += 1
     for iteration in range(first_iter, opt.iterations + 1):        
@@ -101,14 +105,34 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             gt_image = viewpoint_cam.original_image.cuda()
             Ll1 = l1_loss(image, gt_image)
             loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim(image, gt_image))
+
+        # 注意这里的admm损失的添加并没有像之前那样以间隔的形式添加,如果有必要请调整这里
+        if iteration > opt.admm_start_iter and iteration <= opt.admm_end_iter:    
+            admm_loss = 1 * admm.get_admm_loss(loss)
+            loss += admm_loss
+        else:
+            admm_loss = torch.tensor(0.0)
+
         loss.backward()
         iter_end.record()
         with torch.no_grad():
             # Progress bar
             ema_loss_for_log = 0.4 * loss.item() + 0.6 * ema_loss_for_log
+            ema_admm_for_log = 0.4 * admm_loss.item() + 0.6 * ema_admm_for_log
             if iteration % 10 == 0:
-                progress_bar.set_postfix({"Loss": f"{ema_loss_for_log:.{7}f}"})
+                progress_bar.set_postfix({"Loss": f"{ema_loss_for_log:.{4}f}", "ADMM Loss": f"{ema_admm_for_log:.{4}f}", "Points": gaussians._xyz.shape[0]})
                 progress_bar.update(10)
+
+                if WANDB:
+                    wandb.log(
+                        {   "iter":iteration,
+                            "loss": round(loss.item(), 7),
+                            "admm_loss": round(admm_loss.item(), 7) if admm_loss is not None else 0,
+                            "point": gaussians._xyz.shape[0],
+                            "opacity_aftet_admm": wandb.Histogram(gaussians.get_opacity.tolist())
+                        }
+                    )
+
             if iteration == opt.iterations:
                 progress_bar.close()
 
@@ -119,18 +143,22 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 scene.save(iteration)
 
             # Densification
-            if not opt.include_feature:
-                if iteration < opt.densify_until_iter:
-                    # Keep track of max radii in image-space for pruning
-                    gaussians.max_radii2D[visibility_filter] = torch.max(gaussians.max_radii2D[visibility_filter], radii[visibility_filter])
-                    gaussians.add_densification_stats(viewspace_point_tensor, visibility_filter)
+            if iteration >= opt.admm_start_iter and iteration <= opt.simp_iteration2:
+                if iteration == opt.admm_start_iter:
+                    admm = ADMM(gaussians, opt.rho_lr, device="cuda")
+                    admm.update(opt.pruning_threshold2, update_u=False)
+                elif iteration % opt.admm_interval == 0:  
+                    admm.update(opt.pruning_threshold2)  
+            
+            if iteration == opt.simp_iteration1:
+                scores = gaussians._opacity[:, 0]
+                mask = get_pruning_mask(scores, opt.pruning_threshold1)
+                gaussians.prune_points(mask)
 
-                    if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
-                        size_threshold = 20 if iteration > opt.opacity_reset_interval else None
-                        gaussians.densify_and_prune(opt.densify_grad_threshold, 0.005, scene.cameras_extent, size_threshold)
-                    
-                    if iteration % opt.opacity_reset_interval == 0 or (dataset.white_background and iteration == opt.densify_from_iter):
-                        gaussians.reset_opacity()
+            if iteration == opt.simp_iteration2 + 1:
+                scores = gaussians._opacity[:, 0]
+                mask = get_pruning_mask(scores, opt.pruning_threshold2)
+                gaussians.prune_points(mask)
 
             # Optimizer step
             if iteration < opt.iterations:
@@ -218,9 +246,22 @@ if __name__ == "__main__":
     parser.add_argument("--start_checkpoint", type=str, default = None)
     args = parser.parse_args(sys.argv[1:])
     args.save_iterations.append(args.iterations)
-    print(args)
+    print(f"args: {args}")
     args.model_path = args.model_path + f"_{str(args.feature_level)}"
     print("Optimizing " + args.model_path)
+    scene_name = os.path.basename(args.source_path.rstrip("/"))
+    feature_level = args.feature_level
+    time_str = datetime.now().strftime("%m%d%H%M")
+    if WANDB:
+        wandb.login()
+        run = wandb.init(
+            project="langsplat",
+            dir = "./logs",
+            group = scene_name,
+            name = f"{scene_name}_{feature_level}_{time_str}",  
+            config = vars(op.extract(args))
+        )
+        wandb.define_metric("iteration")  # 将 iteration 作为横坐标
 
     # Initialize system state (RNG)
     safe_state(args.quiet)
@@ -228,9 +269,9 @@ if __name__ == "__main__":
     # Start GUI server, configure and run training
     network_gui.init(args.ip, args.port)
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
-    print("test")
+    training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from)
     
-    #training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from)
+    if WANDB: wandb.finish()
 
     # All done
     print("\nTraining complete.")

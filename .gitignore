@@ -13,3 +13,4 @@ ckpt
 release
 eval_result/
 ckpts/
+logs
