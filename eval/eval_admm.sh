@@ -1,5 +1,5 @@
 #!/bin/bash
-CASE_NAME="ramen"
+CASE_NAME=$1
 
 # path to lerf_ovs/label
 gt_folder="../data/lerf_ovs/label"
