@@ -2,27 +2,26 @@
 #casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
 casenames=("figurines")
 iter=2500
-rm -rf logs/admm
-rm -rf output_admm
-mkdir -p logs/admm/train
-mkdir -p logs/admm/render
-mkdir -p logs/admm/eval
-
+rm -rf logs/admm_ab
+rm -rf output_admm_ab
+mkdir -p logs/admm_ab/train
+mkdir -p logs/admm_ab/render
+mkdir -p logs/admm_ab/eval
 # ---------- 阶段 1：训练和渲染 ----------
 for casename in "${casenames[@]}"
 do
     echo "开始处理 ${casename}"
-
+    mkdir -p output_admm_ab/${casename} 
     # 训练阶段
     for level in 1 2 3
     do
-        CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train_admm.py \
+        CUDA_VISIBLE_DEVICES=$((level-1)) nohup python train_admm_ab.py \
             -s data/lerf_ovs/${casename} \
-            -m output_admm/${casename} \
+            -m output_admm_ab/${casename} \
             --start_checkpoint output/${casename}_${level}/chkpnt30000.pth \
-            --port 600${level} \
+            --port 700${level} \
             --feature_level ${level} \
-            > logs/admm/train/${casename}_train_lvl${level}.log 2>&1 &
+            > logs/admm_ab/train/${casename}_train_lvl${level}.log 2>&1 &
     done
 
     wait  # 等待训练完成
@@ -30,18 +29,18 @@ do
     # 渲染阶段
     for level in 1 2 3
     do
-        CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py \
-            -m output_admm/${casename}_${level} \
+        CUDA_VISIBLE_DEVICES=$((level-1)) nohup python render.py \
+            -m output_admm_ab/${casename}_${level} \
             --include_feature \
             --ckpt ${iter} \
-            > logs/admm/render/${casename}_render_lvl${level}.log 2>&1 &
+            > logs/admm_ab/render/${casename}_render_lvl${level}.log 2>&1 &
     done
 
     wait  # 等待渲染完成
 done
 
 # ---------- 阶段 2：评估 ----------
-eval_gpu_list=(3 4 5 6)
+eval_gpu_list=(0 1 2 3)
 eval_job_idx=0
 
 for casename in "${casenames[@]}"
@@ -51,7 +50,7 @@ do
 
     CUDA_VISIBLE_DEVICES=$eval_gpu bash -c "
         cd eval
-        nohup sh eval_admm.sh ${casename} > ../logs/admm/eval/${casename}_eval.log 2>&1
+        nohup sh eval_admm_ab.sh ${casename} > ../logs/admm_ab/eval/${casename}_eval.log 2>&1
     " &
 
     ((eval_job_idx++))

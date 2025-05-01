@@ -108,9 +108,14 @@ def training(dataset, opt : OptimizationParams, pipe, testing_iterations, saving
             Ll1 = l1_loss(image, gt_image)
             loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim(image, gt_image))
 
-        if iteration % opt.admm_interval == 0 and iteration > opt.admm_start_iter and iteration <= opt.admm_end_iter:    
-            admm_loss = 1 * admm.get_admm_loss(loss)
-            loss += admm_loss
+        # If ABLATION is set to True, we do not add the admm loss
+        if not ABLATION:
+            # 注意这里的admm损失的添加并没有像之前那样以间隔的形式添加,如果有必要请调整这里
+            if iteration > opt.admm_start_iter and iteration <= opt.admm_end_iter:    
+                admm_loss = 1 * admm.get_admm_loss(loss)
+                loss += admm_loss
+
+
 
         loss.backward()
         iter_end.record()
@@ -257,7 +262,7 @@ if __name__ == "__main__":
             project="langsplat",
             dir = "./logs",
             group = scene_name,
-            name = f"{scene_name}_{feature_level}",  
+            name = f"{scene_name}_ab_{feature_level}",  
             config = vars(op.extract(args))
         )
         wandb.define_metric("iteration")  # 将 iteration 作为横坐标

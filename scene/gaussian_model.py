@@ -41,7 +41,8 @@ class GaussianModel:
         self.rotation_activation = torch.nn.functional.normalize
 
 
-    def __init__(self, sh_degree : int):
+    def __init__(self, sh_degree : int, admm = False):
+        self.admm = admm
         self.active_sh_degree = 0
         self.max_sh_degree = sh_degree  
         self._xyz = torch.empty(0)
@@ -51,7 +52,6 @@ class GaussianModel:
         self._rotation = torch.empty(0)
         self._opacity = torch.empty(0)
         self._language_feature = None
-        self.admm = False
         self.max_radii2D = torch.empty(0)
         self.xyz_gradient_accum = torch.empty(0)
         self.denom = torch.empty(0)
@@ -378,7 +378,7 @@ class GaussianModel:
         valid_points_mask = ~mask
         optimizable_tensors = self._prune_optimizer(valid_points_mask)
         print("Available keys in optimizable_tensors:", optimizable_tensors.keys())
-
+        print(f" Before Pruning: {len(self._opacity)}")
         self._xyz = optimizable_tensors["xyz"]
         self._features_dc = optimizable_tensors["f_dc"]
         self._features_rest = optimizable_tensors["f_rest"]
@@ -393,6 +393,7 @@ class GaussianModel:
 
         self.denom = self.denom[valid_points_mask]
         self.max_radii2D = self.max_radii2D[valid_points_mask]
+        print(f"After Pruning: {len(self._opacity)}")
 
     def cat_tensors_to_optimizer(self, tensors_dict):
         optimizable_tensors = {}

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
+#casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
+casenames=("waldo_kitchen")
+rm -rf logs/langsplat
 mkdir -p logs/langsplat/train
 mkdir -p logs/langsplat/render
 mkdir -p logs/langsplat/eval
 
-eval_gpu_list=(3 4 5 6)
-eval_job_idx=0
-
+# ---------- 阶段 1：训练 + 渲染 ----------
 for casename in "${casenames[@]}"
 do
     echo "开始处理 ${casename}"
@@ -36,8 +36,14 @@ do
     done
 
     wait  # 等待渲染完成
+done
 
-    # ---------- 并行评估阶段 ----------
+# ---------- 阶段 2：并行评估 ----------
+eval_gpu_list=(3 4 5 6)
+eval_job_idx=0
+
+for casename in "${casenames[@]}"
+do
     eval_gpu=${eval_gpu_list[$((eval_job_idx % ${#eval_gpu_list[@]}))]}
     echo "开始评估 ${casename} 使用 GPU ${eval_gpu}"
 
