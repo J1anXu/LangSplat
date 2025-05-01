@@ -1,26 +1,25 @@
 #!/bin/bash
 
-#casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
-casenames=("waldo_kitchen")
+casenames=("bed")
+# rm -rf logs/langsplat
+# rm -rf output
 mkdir -p logs/langsplat/train
 mkdir -p logs/langsplat/render
 mkdir -p logs/langsplat/eval
-iter=10000
+
 # ---------- 阶段 1：训练 + 渲染 ----------
 for casename in "${casenames[@]}"
-
 do
     echo "开始处理 ${casename}"
 
     # ---------- 训练阶段 ----------
     for level in 1 2 3
     do
-
-        CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py \
-            -s data/lerf_ovs/${casename} \
+        CUDA_VISIBLE_DEVICES=$((level-1)) nohup python train.py \
+            -s data/3dovs/${casename} \
             -m output/${casename} \
-            --start_checkpoint data/lerf_ovs/${casename}/output/${casename}/chkpnt30000.pth \
-            --port 600${level} \
+            --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth \
+            --port 610${level} \
             --feature_level ${level} \
             > logs/langsplat/train/${casename}_train_lvl${level}.log 2>&1 &
     done

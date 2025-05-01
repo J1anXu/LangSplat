@@ -2,8 +2,8 @@
 #casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
 casenames=("figurines")
 iter=2500
-rm -rf logs/admm_ab
-rm -rf output_admm_ab
+# rm -rf logs/admm_ab
+# rm -rf output_admm_ab
 mkdir -p logs/admm_ab/train
 mkdir -p logs/admm_ab/render
 mkdir -p logs/admm_ab/eval
@@ -11,7 +11,6 @@ mkdir -p logs/admm_ab/eval
 for casename in "${casenames[@]}"
 do
     echo "开始处理 ${casename}"
-    mkdir -p output_admm_ab/${casename} 
     # 训练阶段
     for level in 1 2 3
     do

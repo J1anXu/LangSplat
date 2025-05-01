@@ -2,8 +2,8 @@
 #casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
 casenames=("figurines")
 iter=2500
-rm -rf logs/admm
-rm -rf output_admm
+# rm -rf logs/admm
+# rm -rf output_admm
 mkdir -p logs/admm/train
 mkdir -p logs/admm/render
 mkdir -p logs/admm/eval

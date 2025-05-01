@@ -22,6 +22,9 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
+from datetime import datetime
+import wandb
+WANDB = True
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
@@ -31,10 +34,10 @@ except ImportError:
 
 
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
-    
+    checkpoint_iterations.append(opt.iterations)
     first_iter = 0
-    tb_writer = prepare_output_and_logger(dataset)
-    gaussians = GaussianModel(dataset.sh_degree)
+    # tb_writer = prepare_output_and_logger(dataset)
+    gaussians = GaussianModel(dataset.sh_degree, admm=False)
     scene = Scene(dataset, gaussians)
     gaussians.training_setup(opt)
 
@@ -109,11 +112,19 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             if iteration % 10 == 0:
                 progress_bar.set_postfix({"Loss": f"{ema_loss_for_log:.{7}f}"})
                 progress_bar.update(10)
+                if WANDB:
+                    wandb.log(
+                        {   "iter":iteration,
+                            "loss": round(ema_loss_for_log, 7),
+                            "point": gaussians._xyz.shape[0],
+                            "opacity_aftet_admm": wandb.Histogram(gaussians.get_opacity.tolist())
+                        }
+                    )
             if iteration == opt.iterations:
                 progress_bar.close()
 
             # Log and save
-            training_report(tb_writer, iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background, opt))
+           # training_report(tb_writer, iteration, Ll1, loss, l1_loss, iter_start.elapsed_time(iter_end), testing_iterations, scene, render, (pipe, background, opt))
             if (iteration in saving_iterations):
                 print("\n[ITER {}] Saving Gaussians".format(iteration))
                 scene.save(iteration)
@@ -224,11 +235,24 @@ if __name__ == "__main__":
 
     # Initialize system state (RNG)
     safe_state(args.quiet)
-
+    scene_name = os.path.basename(args.source_path.rstrip("/"))
+    feature_level = args.feature_level
+    time_str = datetime.now().strftime("%m%d%H%M")
+    if WANDB:
+        wandb.login()
+        run = wandb.init(
+            project="langsplat",
+            dir = "./logs",
+            group = scene_name,
+            name = f"{scene_name}_{feature_level}",  
+            config = vars(op.extract(args))
+        )
+        wandb.define_metric("iteration")  # 将 iteration 作为横坐标
     # Start GUI server, configure and run training
     network_gui.init(args.ip, args.port)
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
     training(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.debug_from)
+    if WANDB: wandb.finish()
 
     # All done
     print("\nTraining complete.")
