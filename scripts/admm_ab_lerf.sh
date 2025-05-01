@@ -11,7 +11,6 @@ mkdir -p logs/admm_ab/eval
 for casename in "${casenames[@]}"
 do
     echo "开始处理 ${casename}"
-    mkdir -p output_admm_ab/${casename} 
     # 训练阶段
     for level in 1 2 3
     do
