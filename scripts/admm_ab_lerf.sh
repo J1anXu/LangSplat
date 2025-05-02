@@ -3,7 +3,6 @@
 casenames=("figurines")
 iter=2500
 rm -rf logs/admm_ab
-rm -rf output_admm_ab
 mkdir -p logs/admm_ab/train
 mkdir -p logs/admm_ab/render
 mkdir -p logs/admm_ab/eval

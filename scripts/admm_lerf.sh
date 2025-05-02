@@ -1,9 +1,8 @@
 #!/bin/bash
 #casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
-casenames=("figurines")
+casenames=("waldo_kitchen")
 iter=2500
 rm -rf logs/admm
-rm -rf output_admm
 mkdir -p logs/admm/train
 mkdir -p logs/admm/render
 mkdir -p logs/admm/eval
