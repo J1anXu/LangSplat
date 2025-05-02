@@ -259,7 +259,7 @@ if __name__ == "__main__":
     if WANDB:
         wandb.login()
         run = wandb.init(
-            project="langsplat",
+            project="langsplat_admm_ab",
             dir = "./logs",
             group = scene_name,
             name = f"{scene_name}_ab_{feature_level}",  
