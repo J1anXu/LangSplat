@@ -21,7 +21,7 @@ import uuid
 from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
-from arguments import ModelParams, PipelineParams, OptimizationParams
+from arguments_admm import ModelParams, PipelineParams, OptimizationParams
 from admm import ADMM, get_pruning_mask
 import wandb
 from datetime import datetime

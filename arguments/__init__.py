@@ -73,11 +73,11 @@ class PipelineParams(ParamGroup):
 
 class OptimizationParams(ParamGroup):
     def __init__(self, parser):
-        self.iterations = 30_000 # 30_000
+        self.iterations = 30_000
         self.position_lr_init = 0.00016
         self.position_lr_final = 0.0000016
         self.position_lr_delay_mult = 0.01
-        self.position_lr_max_steps = 30_000 # 30_000
+        self.position_lr_max_steps = 30_000
         self.feature_lr = 0.0025
         self.opacity_lr = 0.05
         self.language_feature_lr = 0.0025 # TODO: update
@@ -91,16 +91,6 @@ class OptimizationParams(ParamGroup):
         self.densify_from_iter = 500
         self.densify_until_iter = 15_000
         self.densify_grad_threshold = 0.0002
-
-        self.admm = False
-        self.simp_iteration1 = 50
-        self.admm_start_iter = 100
-        self.admm_end_iter = 2_000
-        self.simp_iteration2 = 2_000
-        self.admm_interval = 50
-        self.rho_lr = 0.0005
-        self.pruning_threshold1 = 0.5
-        self.pruning_threshold2 = 0.5
         super().__init__(parser, "Optimization Parameters")
 
 def get_combined_args(parser : ArgumentParser):
