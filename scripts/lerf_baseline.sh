@@ -1,8 +1,7 @@
 #!/bin/bash
 
-#casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
-casenames=("figurines")
-rm -rf logs/langsplat
+casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
+#casenames=("figurines")
 mkdir -p logs/langsplat/train
 mkdir -p logs/langsplat/render
 mkdir -p logs/langsplat/eval
@@ -39,7 +38,7 @@ do
 done
 
 # ---------- 阶段 2：并行评估 ----------
-eval_gpu_list=(3 4 5 6)
+eval_gpu_list=(2 3 4 5)
 eval_job_idx=0
 
 for casename in "${casenames[@]}"
