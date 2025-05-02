@@ -1,7 +1,7 @@
 #!/bin/bash
 
-casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
-#casenames=("figurines")
+#casenames=("figurines" "ramen" "teatime" "waldo_kitchen")
+casenames=("waldo_kitchen")
 mkdir -p logs/langsplat/train
 mkdir -p logs/langsplat/render
 mkdir -p logs/langsplat/eval

@@ -206,15 +206,24 @@ class GaussianModel:
                 language_feature = torch.zeros((self._xyz.shape[0], 3), device="cuda")
                 self._language_feature = nn.Parameter(language_feature.requires_grad_(True))
                 
+            # l = [
+            #     {'params': [self._language_feature], 'lr': training_args.language_feature_lr, "name": "language_feature"}, # TODO: training_args.language_feature_lr
+            # ]
+            # self._xyz.requires_grad_(False)
+            # self._features_dc.requires_grad_(False)
+            # self._features_rest.requires_grad_(False)
+            # self._scaling.requires_grad_(False)
+            # self._rotation.requires_grad_(False)
+            # self._opacity.requires_grad_(False)
             l = [
+                {'params': [self._xyz], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "xyz"},
+                {'params': [self._features_dc], 'lr': training_args.feature_lr, "name": "f_dc"},
+                {'params': [self._features_rest], 'lr': training_args.feature_lr / 20.0, "name": "f_rest"},
+                {'params': [self._opacity], 'lr': training_args.opacity_lr, "name": "opacity"},
+                {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
+                {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
                 {'params': [self._language_feature], 'lr': training_args.language_feature_lr, "name": "language_feature"}, # TODO: training_args.language_feature_lr
             ]
-            self._xyz.requires_grad_(False)
-            self._features_dc.requires_grad_(False)
-            self._features_rest.requires_grad_(False)
-            self._scaling.requires_grad_(False)
-            self._rotation.requires_grad_(False)
-            self._opacity.requires_grad_(False)
         else:
             l = [
                 {'params': [self._xyz], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "xyz"},
