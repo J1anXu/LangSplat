@@ -50,6 +50,12 @@ class Scene:
             assert False, "Could not recognize scene type!"
 
         if not self.loaded_iter:
+            # 构造目标文件路径
+            dest_path = os.path.join(self.model_path, "input.ply")
+
+            # 创建目标路径的目录（如果不存在）
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+
             with open(scene_info.ply_path, 'rb') as src_file, open(os.path.join(self.model_path, "input.ply") , 'wb') as dest_file:
                 dest_file.write(src_file.read())
             json_cams = []
