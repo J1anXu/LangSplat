@@ -91,3 +91,33 @@ def get_pruning_mask(scores, threshold):
     mask = (scores <= abs_threshold).squeeze()
     return mask
 
+def check_grad_leakage(model, optimizer=None):
+    """
+    适用于非 nn.Module 的模型，自行遍历属性检查参数梯度状态。
+    """
+    print("\n=== 🚨 检查梯度泄露和优化器参数（自定义模型） ===")
+    leak_found = False
+
+    for name in dir(model):
+        param = getattr(model, name)
+        if isinstance(param, torch.Tensor) and param.requires_grad is not None:
+            if param.grad is not None and not param.requires_grad:
+                print(f"⚠️ 参数 '{name}' 有 grad，但 requires_grad=False！可能泄露。")
+                leak_found = True
+            elif param.requires_grad:
+                print(f"✅ 参数 '{name}' 设置为可训练 (requires_grad=True)。")
+            else:
+                print(f"🔒 参数 '{name}' 不可训练 (requires_grad=False)。")
+
+    # 检查 optimizer 参数组
+    if optimizer is not None:
+        print("\n=== 🔍 检查 Optimizer 中的参数 ===")
+        for i, group in enumerate(optimizer.param_groups):
+            for p in group['params']:
+                if not p.requires_grad:
+                    print(f"⚠️ Optimizer param_group[{i}] 中包含 requires_grad=False 的参数")
+                    leak_found = True
+
+    if not leak_found:
+        print("✅ 没发现泄露或异常参数。")
+    raise("=== 检查完成 ===\n")

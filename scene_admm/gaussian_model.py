@@ -207,15 +207,29 @@ class GaussianModel:
                 language_feature = torch.zeros((self._xyz.shape[0], 3), device="cuda")
                 self._language_feature = nn.Parameter(language_feature.requires_grad_(True))
             l = [
-                {'params': [self._xyz], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "xyz"},
-                # TODO 颜色可以考虑去掉
-                {'params': [self._features_dc], 'lr': training_args.feature_lr, "name": "f_dc"},
-                {'params': [self._features_rest], 'lr': training_args.feature_lr / 20.0, "name": "f_rest"},
+                {'params': [self._language_feature], 'lr': training_args.language_feature_lr, "name": "language_feature"}, # TODO: training_args.language_feature_lr
                 {'params': [self._opacity], 'lr': training_args.opacity_lr, "name": "opacity"},
-                {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
-                {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
-                {'params': [self._language_feature], 'lr': training_args.language_feature_lr, "name": "language_feature"},
             ]
+            self._xyz.requires_grad_(False)
+            self._features_dc.requires_grad_(False)
+            self._features_rest.requires_grad_(False)
+            self._scaling.requires_grad_(False)
+            self._rotation.requires_grad_(False)
+            # l = [
+            #     {'params': [self._xyz], 'lr': training_args.position_lr_init * self.spatial_lr_scale, "name": "xyz"},
+            #     {'params': [self._features_dc], 'lr': training_args.feature_lr, "name": "f_dc"},
+            #     {'params': [self._features_rest], 'lr': training_args.feature_lr / 20.0, "name": "f_rest"},
+            #     {'params': [self._opacity], 'lr': training_args.opacity_lr, "name": "opacity"},
+            #     {'params': [self._scaling], 'lr': training_args.scaling_lr, "name": "scaling"},
+            #     {'params': [self._rotation], 'lr': training_args.rotation_lr, "name": "rotation"},
+            #     {'params': [self._language_feature], 'lr': training_args.language_feature_lr, "name": "language_feature"},
+            # ]
+            # self._xyz.requires_grad_(False)
+            # self._features_dc.requires_grad_(False)
+            # self._features_rest.requires_grad_(False)
+            # self._scaling.requires_grad_(False)
+            # self._rotation.requires_grad_(False)
+            # self._opacity.requires_grad_(False)
         elif training_args.include_feature:
             print("开启feature训练,只优化language_feature")
             if self._language_feature is None or self._language_feature.shape[0] != self._xyz.shape[0]:
@@ -391,6 +405,28 @@ class GaussianModel:
 
         self.xyz_gradient_accum = self.xyz_gradient_accum[valid_points_mask]
 
+        self.denom = self.denom[valid_points_mask]
+        self.max_radii2D = self.max_radii2D[valid_points_mask]
+        print(f"After Pruning: {len(self._opacity)}")
+
+    def prune_points_admm(self, mask):
+        valid_points_mask = ~mask
+        optimizable_tensors = self._prune_optimizer(valid_points_mask)
+        print("Available keys in optimizable_tensors:", optimizable_tensors.keys())
+        print(f" Before Pruning: {len(self._opacity)}")
+
+        # Opacity 一定在优化列表中
+        self._opacity = optimizable_tensors["opacity"]
+        # 其他的参数不一定在优化列表中 如果没有则直接mask原值
+        self._xyz = optimizable_tensors.get("xyz", self._xyz[valid_points_mask])
+        self._features_dc = optimizable_tensors.get("f_dc", self._features_dc[valid_points_mask])
+        self._features_rest = optimizable_tensors.get("f_rest", self._features_rest[valid_points_mask])
+        self._language_feature = optimizable_tensors.get("language_feature", self._language_feature[valid_points_mask])
+        self._scaling = optimizable_tensors.get("scaling", self._scaling[valid_points_mask])
+        self._rotation = optimizable_tensors.get("rotation", self._rotation[valid_points_mask])
+
+
+        self.xyz_gradient_accum = self.xyz_gradient_accum[valid_points_mask]
         self.denom = self.denom[valid_points_mask]
         self.max_radii2D = self.max_radii2D[valid_points_mask]
         print(f"After Pruning: {len(self._opacity)}")

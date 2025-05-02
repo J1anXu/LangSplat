@@ -22,7 +22,7 @@ from tqdm import tqdm
 from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments_admm import ModelParams, PipelineParams, OptimizationParams
-from admm import ADMM, get_pruning_mask
+from admm import ADMM, get_pruning_mask, check_grad_leakage
 import wandb
 from datetime import datetime
 WANDB = True
@@ -111,7 +111,7 @@ def training(dataset, opt : OptimizationParams, pipe, testing_iterations, saving
         if iteration % opt.admm_interval == 0 and iteration > opt.admm_start_iter and iteration <= opt.admm_end_iter:    
             admm_loss = 1 * admm.get_admm_loss(loss)
             loss += admm_loss
-
+        # check_grad_leakage(gaussians,gaussians.optimizer)
         loss.backward()
         iter_end.record()
         with torch.no_grad():
@@ -152,12 +152,12 @@ def training(dataset, opt : OptimizationParams, pipe, testing_iterations, saving
             if iteration == opt.simp_iteration1:
                 scores = gaussians._opacity[:, 0]
                 mask = get_pruning_mask(scores, opt.pruning_threshold1)
-                gaussians.prune_points(mask)
+                gaussians.prune_points_admm(mask)
 
             if iteration == opt.simp_iteration2 + 1:
                 scores = gaussians._opacity[:, 0]
                 mask = get_pruning_mask(scores, opt.pruning_threshold2)
-                gaussians.prune_points(mask)
+                gaussians.prune_points_admm(mask)
 
             # Optimizer step
             if iteration < opt.iterations:
