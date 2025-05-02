@@ -100,7 +100,7 @@ class OptimizationParams(ParamGroup):
         self.admm_interval = 50
         self.rho_lr = 0.0005
         self.pruning_threshold1 = 0.5
-        self.pruning_threshold2 = 0.5
+        self.pruning_threshold2 = 0.9
         super().__init__(parser, "Optimization Parameters")
 
 def get_combined_args(parser : ArgumentParser):
