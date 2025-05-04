@@ -17,6 +17,9 @@ import time
 from tqdm import tqdm
 
 import sys
+# 为了方便debug
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 sys.path.append("..")
 import colormaps
 from autoencoder.model import Autoencoder
