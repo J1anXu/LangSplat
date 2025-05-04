@@ -24,14 +24,16 @@ from gaussian_renderer import GaussianModel
 def render_set(model_path, source_path, name, iteration, views, gaussians, pipeline, background, args):
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders")
     gts_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt")
+    mask_path = os.path.join(model_path, name, "ours_{}".format(iteration), "mask")
     render_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders_npy")
     gts_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "gt_npy")
-
+    mask_npy_path = os.path.join(model_path, name, "ours_{}".format(iteration), "mask_npy")
     makedirs(render_npy_path, exist_ok=True)
     makedirs(gts_npy_path, exist_ok=True)
     makedirs(render_path, exist_ok=True)
     makedirs(gts_path, exist_ok=True)
-
+    makedirs(mask_path, exist_ok=True)
+    makedirs(mask_npy_path, exist_ok=True)
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
         output = render(view, gaussians, pipeline, background, args)
 
@@ -45,12 +47,14 @@ def render_set(model_path, source_path, name, iteration, views, gaussians, pipel
             
         else:
             gt, mask = view.get_language_feature(os.path.join(source_path, args.language_features_name), feature_level=args.feature_level)
-
+        print(mask.shape)
         np.save(os.path.join(render_npy_path, '{0:05d}'.format(idx) + ".npy"),rendering.permute(1,2,0).cpu().numpy())
         np.save(os.path.join(gts_npy_path, '{0:05d}'.format(idx) + ".npy"),gt.permute(1,2,0).cpu().numpy())
+        np.save(os.path.join(mask_npy_path, '{0:05d}'.format(idx) + ".npy"),mask.permute(1,2,0).cpu().numpy())
         torchvision.utils.save_image(rendering, os.path.join(render_path, '{0:05d}'.format(idx) + ".png"))
         torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
-               
+        torchvision.utils.save_image(mask.float(), os.path.join(mask_path, '{0:05d}'.format(idx) + ".png"))
+
 def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParams, skip_train : bool, skip_test : bool, args):
     with torch.no_grad():
         gaussians = GaussianModel(dataset.sh_degree)

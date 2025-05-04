@@ -15,14 +15,65 @@ import numpy as np
 import torch
 import time
 from tqdm import tqdm
+from PIL import Image
 
 import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 sys.path.append("..")
 import colormaps
 from autoencoder.model import Autoencoder
 from openclip_encoder import OpenCLIPNetwork
 from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
-from lerf_utils import eval_gt_lerfdata
+
+def eval_gt_lerfdata(dataset_path) -> Dict:
+    # Step1. 构造label路径(img_paths)
+    segmentations_path = os.path.join(dataset_path, 'segmentations')
+    # 获取 segmentations_path 下所有子文件夹的名称
+    label_names = [
+        name for name in os.listdir(segmentations_path) if os.path.isdir(os.path.join(segmentations_path, name))
+    ]
+    print(label_names)
+    # 构造完整路径
+    image_paths = [
+        os.path.join(os.path.join(dataset_path, 'images'), f"{folder}.jpg") for folder in label_names
+    ]
+
+    # 打印成你想要的格式
+    for i, path in enumerate(image_paths):
+        print(f"# {i} ='{path}'")
+
+
+    # Step4.读取蒙版  构造gt_ann dict
+    gt_ann = {}
+    mask_target_size = (1440,1080)  
+    img_target_size = (1080,1440)
+    for label in label_names:
+        mask_folder = os.path.join(segmentations_path, label)
+        dict_dict = {}
+
+        for mask_name in os.listdir(mask_folder):
+            mask_path = os.path.join(mask_folder, mask_name)
+            if os.path.isfile(mask_path) and mask_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                # 去掉文件扩展名
+                mask_name_wo_ext = os.path.splitext(mask_name)[0]  
+                # 灰度图
+                mask_img = Image.open(mask_path).convert('L')  
+                # 降采样（Resize）
+                print(f"Original size: {mask_img.size} target size: {mask_target_size}")
+                mask_img = mask_img.resize(mask_target_size, resample=Image.NEAREST)
+                mask_array = np.array(mask_img)
+                print(f"Label: {label}, Mask: {mask_name_wo_ext}, Size: {mask_array.shape}")
+
+                dict_dict[mask_name_wo_ext]={
+                    'mask': mask_array,
+                }
+
+        gt_ann[label] = dict_dict
+
+
+    return gt_ann, img_target_size, image_paths
+
 
 def get_logger(name, log_file=None, log_level=logging.INFO, file_mode='w'):
     logger = logging.getLogger(name)
@@ -87,19 +138,40 @@ def activate_stream(sem_map,
             output = output / (torch.max(output) + 1e-9)
             output = output * (1.0 - (-1.0)) + (-1.0)
             output = torch.clip(output, 0, 1)
-
+            # mask_pred范围是[0, 1]
             mask_pred = (output.cpu().numpy() > thresh).astype(np.uint8)
             mask_pred = smooth(mask_pred)
             mask_lvl[i] = mask_pred
 
-            # TODO 这个可以用数据透传进来
+            # mask_gt的范围是[0, 255]
             mask_gt = img_ann[clip_model.positives[k]]['mask'].astype(np.uint8)
-            
+
             # calculate iou
-            intersection = np.sum(np.logical_and(mask_gt, mask_pred))
+            mask_gt_bin = mask_gt / 255.0
+            mask_pred_bin = mask_pred
+
+
+            intersection = np.sum(np.logical_and(mask_gt_bin, mask_pred_bin))
             union = np.sum(np.logical_or(mask_gt, mask_pred))
             iou = np.sum(intersection) / np.sum(union)
             iou_lvl[i] = iou
+
+            # 保存 mask_gt 和 mask_pred
+            save_root = Path.home() / "LangSplat" / "temp"
+            save_root.mkdir(parents=True, exist_ok=True)
+
+            # 构建保存路径，包括类别名和 head 编号
+            prefix = f"{clip_model.positives[k]}_{i:02d}"
+
+            gt_path = save_root / f"{prefix}_GT.png"
+            pred_path = save_root / f"{prefix}_PRED.png"
+
+            mask_gt_img = (mask_gt).astype(np.uint8)
+            mask_pred_img = (mask_pred * 255).astype(np.uint8)
+
+            cv2.imwrite(str(gt_path), mask_gt_img)
+            cv2.imwrite(str(pred_path), mask_pred_img)
+            print(f"Saved GT mask to {gt_path}")
 
         score_lvl = torch.zeros((n_head,), device=valid_map.device)
         for i in range(n_head):
@@ -116,20 +188,19 @@ def activate_stream(sem_map,
 
     return chosen_iou_list, chosen_lvl_list
 
-def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
+def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     colormap_options = colormaps.ColormapOptions(
-        colormap="turbo",
+        colormap="turbo", # 它指定使用哪种颜色映射来将数值数据转换为颜色。
         normalize=True,
         colormap_min=-1.0,
         colormap_max=1.0,
     )
-    
-    # TODO 重新写一个这个 gt_ann的构造
-    gt_ann, image_shape, image_paths = eval_gt_lerfdata(Path(json_folder), Path(output_path))
+    print(f"dataset_path: {dataset_path}")
 
-    # TODO 蒙版的keys
+    gt_ann, image_shape, image_paths = eval_gt_lerfdata(dataset_path)
+
     eval_index_list = [int(idx) for idx in list(gt_ann.keys())]
 
     # TODO 读取所有特征,叠起来快速计算
@@ -138,6 +209,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
         feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
                                key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
         for j, idx in enumerate(eval_index_list):
+            print(compressed_sem_feats[i][j].shape)
+            print(np.load(feat_paths_lvl[idx]).shape)
             compressed_sem_feats[i][j] = np.load(feat_paths_lvl[idx])
 
     # instantiate autoencoder and openclip
@@ -148,13 +221,18 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
     model.eval()
 
     chosen_iou_all, chosen_lvl_list = [], []
+    target_h = 1080
+    target_w = 1440
     for j, idx in enumerate(tqdm(eval_index_list)):
         image_name = Path(output_path) / f'{idx+1:0>5}'
         image_name.mkdir(exist_ok=True, parents=True)
-        
+        # 这里有可能跟mask的顺序不一致
         sem_feat = compressed_sem_feats[:, j, ...]
         sem_feat = torch.from_numpy(sem_feat).float().to(device)
+        # [3024, 4032, 3]这里需要降采样到1080 1440
         rgb_img = cv2.imread(image_paths[j])[..., ::-1]
+        resized_img = cv2.resize(rgb_img, (target_w, target_h), interpolation=cv2.INTER_AREA)
+        rgb_img = resized_img
         rgb_img = (rgb_img / 255.0).astype(np.float32)
         rgb_img = torch.from_numpy(rgb_img).to(device)
 
@@ -164,8 +242,9 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
             restored_feat = restored_feat.view(lvl, h, w, -1)           # 3x832x1264x512
         
         # TODO 蒙版的名字
-        img_ann = gt_ann[f'{idx}']
+        img_ann = gt_ann[f'{idx:02d}']
         mask_name = list(img_ann.keys())
+        print(f"mask_name: {mask_name}")
         clip_model.set_positives(mask_name)
         
         c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
@@ -204,8 +283,8 @@ if __name__ == "__main__":
     parser.add_argument('--feat_dir', type=str, default=None)
     parser.add_argument("--ae_ckpt_dir", type=str, default=None)
     parser.add_argument("--output_dir", type=str, default=None)
-    parser.add_argument("--json_folder", type=str, default=None)
     parser.add_argument("--mask_thresh", type=float, default=0.4)
+    parser.add_argument('--dataset_path', type=str, default=None)
     parser.add_argument('--encoder_dims',
                         nargs = '+',
                         type=int,
@@ -224,12 +303,12 @@ if __name__ == "__main__":
     feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_npy") for i in range(1,4)]
     output_path = os.path.join(args.output_dir, dataset_name)
     ae_ckpt_path = os.path.join(args.ae_ckpt_dir, dataset_name, "best_ckpt.pth")
-    json_folder = os.path.join(args.json_folder, dataset_name)
-
+    dataset_path = os.path.join(args.dataset_path, dataset_name)
     # NOTE logger
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     os.makedirs(output_path, exist_ok=True)
     log_file = os.path.join(output_path, f'{timestamp}.log')
     logger = get_logger(f'{dataset_name}', log_file=log_file, log_level=logging.INFO)
 
-    evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, args.encoder_dims, args.decoder_dims, logger)
+
+    evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, args.encoder_dims, args.decoder_dims, logger)

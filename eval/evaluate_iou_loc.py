@@ -239,6 +239,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
         feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
                                key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
         for j, idx in enumerate(eval_index_list):
+            print(compressed_sem_feats[i][j].shape)
+            print(np.load(feat_paths_lvl[idx]).shape)
             compressed_sem_feats[i][j] = np.load(feat_paths_lvl[idx])
 
     # instantiate autoencoder and openclip
