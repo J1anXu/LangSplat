@@ -36,8 +36,7 @@ while [ $i -lt $NUM_SCENES ]; do
         CUDA_VISIBLE_DEVICES=$GPU_ID \
         nohup python test.py \
             --dataset_path $DATASET_PATH/$SCENE_NAME \
-            --dataset_name $SCENE_NAME \
-            --lr $LR > $LOG_FILE 2>&1 &
+            --dataset_name $SCENE_NAME > $LOG_FILE 2>&1 &
 
         ((i++))
     done

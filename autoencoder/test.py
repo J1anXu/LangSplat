@@ -63,6 +63,7 @@ if __name__ == '__main__':
         data = feature.to("cuda:0")
         with torch.no_grad():
             outputs = model.encode(data).to("cpu").numpy()  
+            print(f"{data.size()} -> {outputs.shape}")
         if idx == 0:
             features = outputs
         else:
