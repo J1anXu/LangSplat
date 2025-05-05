@@ -28,8 +28,10 @@ from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack
 
 def eval_gt_lerfdata(dataset_path) -> Dict:
     # Step1. 构造label路径(img_paths)
-    segmentations_path = os.path.join(dataset_path, 'segmentations')
-    # 获取 segmentations_path 下所有子文件夹的名称
+    # segmentations_path = os.path.join(dataset_path, 'segmentations')
+    # # 获取 segmentations_path 下所有子文件夹的名称
+    segmentations_path = os.path.expanduser('~/LangSplat/data/3dovs/bed/segmentations')
+
     label_names = [
         name for name in os.listdir(segmentations_path) if os.path.isdir(os.path.join(segmentations_path, name))
     ]
@@ -188,7 +190,7 @@ def activate_stream(sem_map,
 
     return chosen_iou_list, chosen_lvl_list
 
-def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
+def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, encoder_hidden_dims, decoder_hidden_dims):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     colormap_options = colormaps.ColormapOptions(
@@ -203,15 +205,6 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
 
     eval_index_list = [int(idx) for idx in list(gt_ann.keys())]
 
-    # TODO 读取所有特征,叠起来快速计算
-    compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
-    for i in range(len(feat_dir)):
-        feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
-                               key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
-        for j, idx in enumerate(eval_index_list):
-            print(compressed_sem_feats[i][j].shape)
-            print(np.load(feat_paths_lvl[idx]).shape)
-            compressed_sem_feats[i][j] = np.load(feat_paths_lvl[idx])
 
     # instantiate autoencoder and openclip
     clip_model = OpenCLIPNetwork(device)
@@ -220,47 +213,23 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
     model.load_state_dict(checkpoint)
     model.eval()
 
-    chosen_iou_all, chosen_lvl_list = [], []
-    target_h = 1080
-    target_w = 1440
-    for j, idx in enumerate(tqdm(eval_index_list)):
-        image_name = Path(output_path) / f'{idx+1:0>5}'
-        image_name.mkdir(exist_ok=True, parents=True)
-        # 这里有可能跟mask的顺序不一致
-        sem_feat = compressed_sem_feats[:, j, ...]
-        sem_feat = torch.from_numpy(sem_feat).float().to(device)
-        # [3024, 4032, 3]这里需要降采样到1080 1440
-        rgb_img = cv2.imread(image_paths[j])[..., ::-1]
-        resized_img = cv2.resize(rgb_img, (target_w, target_h), interpolation=cv2.INTER_AREA)
-        rgb_img = resized_img
-        rgb_img = (rgb_img / 255.0).astype(np.float32)
-        rgb_img = torch.from_numpy(rgb_img).to(device)
-
-        with torch.no_grad():
-            lvl, h, w, _ = sem_feat.shape
-            feat_flatten = sem_feat.flatten(0, 2)
-            restored_feat = model.decode(feat_flatten)
-            restored_feat = restored_feat.view(lvl, h, w, -1)           # 3x832x1264x512
-        
-        # TODO 蒙版的名字
-        img_ann = gt_ann[f'{idx:02d}']
-        mask_name = list(img_ann.keys())
-        print(f"mask_name: {mask_name}")
-        clip_model.set_positives(mask_name)
-        
-        c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
-                                            thresh=mask_thresh, colormap_options=colormap_options)
-        
-        chosen_iou_all.extend(c_iou_list)
-        chosen_lvl_list.extend(c_lvl)
-
-
-    # # iou
-    mean_iou_chosen = sum(chosen_iou_all) / len(chosen_iou_all)
-    logger.info(f'trunc thresh: {mask_thresh}')
-    logger.info(f"iou chosen: {mean_iou_chosen:.4f}")
-    logger.info(f"chosen_lvl: \n{chosen_lvl_list}")
-
+    # TODO 读取所有特征,叠起来快速计算
+    compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
+    for i in range(len(feat_dir)):
+        feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
+                               key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
+        for j in range(len(feat_paths_lvl)):
+            feature = np.load(feat_paths_lvl[j])
+            feature = torch.from_numpy(feature).float().to(device)
+            print(f"feature shape: {feature.shape}")
+            with torch.no_grad():
+                h, w, _ = feature.shape
+                feat_flatten = feature.flatten(0, 1)
+                restored_feat = model.decode(feat_flatten)
+                restored_feat = restored_feat.view(h, w, -1)   
+                print(f"restored_feat shape: {restored_feat.shape}")
+                np.save(os.path.join(output_path[i], f"{j:05d}.npy"), restored_feat.cpu().numpy())
+                print(f"save restored_feat to {os.path.join(output_path[i], f'{j:05d}.npy')}")
 
 def seed_everything(seed_value):
     random.seed(seed_value)
@@ -302,15 +271,12 @@ if __name__ == "__main__":
     dataset_name = args.dataset_name
     mask_thresh = args.mask_thresh
     # 注意这里改回去
-    feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/gt_npy") for i in range(1,4)]
-    output_path = os.path.join(args.output_dir, dataset_name)
+    feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_npy") for i in range(1,4)]
+    output_path = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_decoded_npy") for i in range(1,4)]
+    for path in output_path:
+        os.makedirs(path, exist_ok=True)
+
     ae_ckpt_path = os.path.join(args.ae_ckpt_dir, dataset_name, "best_ckpt.pth")
     dataset_path = os.path.join(args.dataset_path, dataset_name)
-    # NOTE logger
-    timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-    os.makedirs(output_path, exist_ok=True)
-    log_file = os.path.join(output_path, f'{timestamp}.log')
-    logger = get_logger(f'{dataset_name}', log_file=log_file, log_level=logging.INFO)
 
-
-    evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, args.encoder_dims, args.decoder_dims, logger)
+    evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, args.encoder_dims, args.decoder_dims)
