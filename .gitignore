@@ -17,3 +17,5 @@ logs
 output_admm_ab/
 *.log
 backup
+eval/masks_cv2
+masks_cv2

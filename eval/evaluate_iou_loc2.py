@@ -15,6 +15,7 @@ import numpy as np
 import torch
 import time
 from tqdm import tqdm
+from PIL import Image
 
 import sys
 # 为了方便debug
@@ -25,6 +26,88 @@ import colormaps
 from autoencoder.model import Autoencoder
 from openclip_encoder import OpenCLIPNetwork
 from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
+
+def downsample(image):
+
+    # 如果 image 是 PIL.Image 对象，将其转换为 NumPy 数组
+    if isinstance(image, Image.Image):
+        image = np.array(image)
+
+    # 如果 image 是 PyTorch 张量，则将其转换为 NumPy 数组
+    elif isinstance(image, torch.Tensor):
+        image = image.cpu().numpy()  # 如果是 GPU 上的 tensor，先移动到 CPU，再转换为 numpy 数组
+
+    # 检查图像是否是 NumPy 数组
+    if isinstance(image, np.ndarray):
+        # 判断图像维度：如果是 RGB 图像（3 通道），则 shape 是 (height, width, 3)
+        if len(image.shape) == 3:
+            orig_h, orig_w = image.shape[0], image.shape[1]
+        elif len(image.shape) == 2:
+            orig_h, orig_w = image.shape[0], image.shape[1]
+        else:
+            raise ValueError("Unsupported image format")
+    else:
+        raise ValueError(f"Expected image to be a numpy.ndarray or torch.Tensor, but got {type(image)}")
+
+    orig_w, orig_h = image.shape[1], image.shape[0]
+    if orig_h > 1080:
+        print("[ INFO ] Encountered quite large input images (>1080P), rescaling to 1080P.\n "
+            "If this is not desired, please explicitly specify '--resolution/-r' as 1")
+
+        global_down = orig_h / 1080
+    else:
+        global_down = 1
+
+        
+    scale = float(global_down)
+    resolution = (int( orig_w  / scale), int(orig_h / scale))
+    
+    image = cv2.resize(image, resolution)
+    image = torch.from_numpy(image)
+    return image
+
+def downsample_rgb(image):
+    # 记录输入图像的设备
+    device = image.device if isinstance(image, torch.Tensor) else None
+    
+    # 如果是 torch.Tensor，则转换为 numpy.ndarray
+    if isinstance(image, torch.Tensor):
+        image = image.cpu().numpy()  # 转换到 CPU 并转换为 NumPy 数组
+        
+        # 如果是 CHW 格式 (通道优先)，则将其转换为 HWC 格式 (高度，宽度，通道)
+        if image.ndim == 3 and image.shape[0] == 3:
+            image = np.transpose(image, (1, 2, 0))  # 转换为 HWC
+
+    # 确保 image 是一个 numpy.ndarray
+    if not isinstance(image, np.ndarray):
+        raise ValueError(f"Expected a numpy.ndarray, but got {type(image)}")
+
+    # 获取原始图像的宽高
+    orig_h, orig_w = image.shape[0], image.shape[1]
+    
+    # 判断是否需要缩放至1080P
+    if orig_h > 1080:
+        print("[ INFO ] Encountered quite large input images (>1080P), rescaling to 1080P.\n"
+              "If this is not desired, please explicitly specify '--resolution/-r' as 1")
+        global_down = orig_h / 1080
+    else:
+        global_down = 1
+
+    # 缩放比例
+    scale = float(global_down)
+    resolution = (int(orig_w / scale), int(orig_h / scale))
+    
+    # 使用 INTER_CUBIC 插值方法进行降采样
+    image_resized = cv2.resize(image, resolution, interpolation=cv2.INTER_CUBIC)
+    
+    # 将图片转为 PyTorch 张量
+    image_resized = torch.from_numpy(image_resized).float()
+
+    # 如果原输入是 Tensor，发送到相同的设备
+    if device is not None:
+        image_resized = image_resized.to(device)
+    
+    return image_resized
 
 
 def get_logger(name, log_file=None, log_level=logging.INFO, file_mode='w'):
@@ -46,45 +129,49 @@ def get_logger(name, log_file=None, log_level=logging.INFO, file_mode='w'):
     return logger
 
 
-def eval_gt_lerfdata(json_folder: Union[str, Path] = None, ouput_path: Path = None) -> Dict:
-    """
-    organise lerf's gt annotations
-    gt format:
-        file name: frame_xxxxx.json
-        file content: labelme format
-    return:
-        gt_ann: dict()
-            keys: str(int(idx))
-            values: dict()
-                keys: str(label)
-                values: dict() which contain 'bboxes' and 'mask'
-    """
-    gt_json_paths = sorted(glob.glob(os.path.join(str(json_folder), 'frame_*.json')))
-    img_paths = sorted(glob.glob(os.path.join(str(json_folder), 'frame_*.jpg')))
-    print(f'len(gt_json_paths) in {json_folder}: {len(gt_json_paths)}')
-    print(f'len(img_paths) in {json_folder}: {len(img_paths)}')
-    gt_ann = {}
-    for js_path in gt_json_paths:
-        img_ann = defaultdict(dict)
-        with open(js_path, 'r') as f:
-            gt_data = json.load(f)
-        
-        h, w = gt_data['info']['height'], gt_data['info']['width']
-        idx = int(gt_data['info']['name'].split('_')[-1].split('.jpg')[0]) - 1 
-        for prompt_data in gt_data["objects"]:
-            label = prompt_data['category']            
-            mask = polygon_to_mask((h, w), prompt_data['segmentation'])
-            if img_ann[label].get('mask', None) is not None:
-                mask = stack_mask(img_ann[label]['mask'], mask)
-            img_ann[label]['mask'] = mask
-            
-            # # save for visulsization
-            save_path = ouput_path / 'gt' / gt_data['info']['name'].split('.jpg')[0] / f'{label}.jpg'
-            save_path.parent.mkdir(exist_ok=True, parents=True)
-            vis_mask_save(mask, save_path)
-        gt_ann[f'{idx}'] = img_ann
+def eval_gt_lerfdata(dataset_path) -> Dict:
+    # Step1. 构造label路径(img_paths)
+    # segmentations_path = os.path.join(dataset_path, 'segmentations')
+    # # 获取 segmentations_path 下所有子文件夹的名称
+    segmentations_path = os.path.expanduser('~/LangSplat/data/3dovs/bed/segmentations')
 
-    return gt_ann, (h, w), img_paths
+    label_names = [
+        name for name in os.listdir(segmentations_path) if os.path.isdir(os.path.join(segmentations_path, name))
+    ]
+    print(label_names)
+    # 构造完整路径
+    image_paths = [
+        os.path.join(os.path.join(dataset_path, 'images'), f"{folder}.jpg") for folder in label_names
+    ]
+
+    # 打印成你想要的格式
+    for i, path in enumerate(image_paths):
+        print(f"# {i} ='{path}'")
+
+
+    # Step4.读取蒙版  构造gt_ann dict
+    gt_ann = {}
+    for label in label_names:
+        mask_folder = os.path.join(segmentations_path, label)
+        dict_dict = {}
+
+        for mask_name in os.listdir(mask_folder):
+            mask_path = os.path.join(mask_folder, mask_name)
+            if os.path.isfile(mask_path) and mask_name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                # 去掉文件扩展名
+                mask_name_wo_ext = os.path.splitext(mask_name)[0]  
+                # 灰度图
+                mask = Image.open(mask_path).convert('L') 
+                # 降采样（Resize）
+                mask = downsample(mask)
+                dict_dict[mask_name_wo_ext]={
+                    'mask': mask,
+                }
+
+        gt_ann[label] = dict_dict
+
+
+    return gt_ann, mask.shape, image_paths
 
 
 def activate_stream(sem_map,  # 语义图
@@ -98,7 +185,7 @@ def activate_stream(sem_map,  # 语义图
     # sem_map 是输入的语义图（semantic map），通常包含了每个像素在不同语义类别下的激活值。
     valid_map = clip_model.get_max_across(sem_map)                 # 3xkx832x1264
     n_head, n_prompt, h, w = valid_map.shape
-
+    image = downsample_rgb(image)
     # positive prompts
     chosen_iou_list, chosen_lvl_list = [], []
     for k in range(n_prompt):
@@ -147,8 +234,15 @@ def activate_stream(sem_map,  # 语义图
             mask_lvl[i] = mask_pred
 
             # 保存 GT 掩码（可视化用）
-            mask_gt = img_ann[clip_model.positives[k]]['mask'].astype(np.uint8)
-            save_path = './masks_cv2/mask_gt_{}.png'.format(k)
+            # 获取 mask tensor
+            mask_tensor = img_ann[clip_model.positives[k]]['mask']
+            # 如果是 torch.Tensor，转换为 numpy 数组
+            if isinstance(mask_tensor, torch.Tensor):
+                mask = mask_tensor.cpu().numpy()  # 转换为 numpy 数组
+            # 然后进行类型转换
+            mask_gt = mask.astype(np.uint8)
+
+            save_path = f'./masks_cv2/mask_gt_{k}_{i}.png'
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             cv2.imwrite(save_path, mask_gt * 255)  # 若是二值图，乘 255 可视化
 
@@ -174,7 +268,7 @@ def activate_stream(sem_map,  # 语义图
 
     return chosen_iou_list, chosen_lvl_list
 
-def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
+def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     colormap_options = colormaps.ColormapOptions(
@@ -184,7 +278,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
         colormap_max=1.0,
     )
 
-    gt_ann, image_shape, image_paths = eval_gt_lerfdata(Path(json_folder), Path(output_path))
+    gt_ann, image_shape, image_paths = eval_gt_lerfdata(dataset_path)
+    
     eval_index_list = [int(idx) for idx in list(gt_ann.keys())]
     compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
     for i in range(len(feat_dir)):
@@ -218,7 +313,7 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
             restored_feat = model.decode(sem_feat.flatten(0, 2))
             restored_feat = restored_feat.view(lvl, h, w, -1)           # 3x832x1264x512
         
-        img_ann = gt_ann[f'{idx}']
+        img_ann = gt_ann[f'{idx:02d}']
         clip_model.set_positives(list(img_ann.keys()))
         
         c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
@@ -262,7 +357,7 @@ if __name__ == "__main__":
     parser.add_argument('--feat_dir', type=str, default=None)
     parser.add_argument("--ae_ckpt_dir", type=str, default=None)
     parser.add_argument("--output_dir", type=str, default=None)
-    parser.add_argument("--json_folder", type=str, default=None)
+    parser.add_argument("--dataset_path", type=str, default=None)
     parser.add_argument("--mask_thresh", type=float, default=0.4)
     parser.add_argument('--encoder_dims',
                         nargs = '+',
@@ -282,12 +377,12 @@ if __name__ == "__main__":
     feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_npy") for i in range(1,4)]
     output_path = os.path.join(args.output_dir, dataset_name)
     ae_ckpt_path = os.path.join(args.ae_ckpt_dir, dataset_name, "best_ckpt.pth")
-    json_folder = os.path.join(args.json_folder, dataset_name)
 
     # NOTE logger
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     os.makedirs(output_path, exist_ok=True)
     log_file = os.path.join(output_path, f'{timestamp}.log')
     logger = get_logger(f'{dataset_name}', log_file=log_file, log_level=logging.INFO)
+    dataset_path = os.path.join(args.dataset_path, dataset_name)
 
-    evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, args.encoder_dims, args.decoder_dims, logger)
+    evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, args.encoder_dims, args.decoder_dims, logger)

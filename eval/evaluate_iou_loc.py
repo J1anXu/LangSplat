@@ -24,7 +24,7 @@ sys.path.append("..")
 import colormaps
 from autoencoder.model import Autoencoder
 from openclip_encoder import OpenCLIPNetwork
-from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
+from eval.utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
 
 
 def get_logger(name, log_file=None, log_level=logging.INFO, file_mode='w'):

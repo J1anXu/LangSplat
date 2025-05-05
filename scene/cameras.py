@@ -88,7 +88,7 @@ class Camera(nn.Module):
             raise ValueError("feature_level=", feature_level)
         # point_feature = torch.cat((point_feature2, point_feature3, point_feature4), dim=-1).to('cuda')
         point_feature = point_feature1.reshape(self.image_height, self.image_width, -1).permute(2, 0, 1)
-       
+        # point_feature.shape = (num_features, image_height, image_width) num_features = 512
         return point_feature.cuda(), mask.cuda()
 
 class MiniCam:

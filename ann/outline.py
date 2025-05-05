@@ -59,7 +59,7 @@ def restore_contour_image(edge_coords, image_shape):
 if __name__ == "__main__":
 
     # 路径到 mask 图片
-    mask_path = "/data2/jian/LangSplat/data/3dovs/bed/segmentations/00/banana.png"
+    mask_path = "/data2/jian/LangSplat/data/3dovs/bed/segmentations/00/white sheet.png"
 
     if not os.path.exists(mask_path):
         print(f"File does not exist at: {mask_path}")
