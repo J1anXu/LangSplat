@@ -72,15 +72,10 @@ def eval_gt_lerfdata(json_folder: Union[str, Path] = None, ouput_path: Path = No
         h, w = gt_data['info']['height'], gt_data['info']['width']
         idx = int(gt_data['info']['name'].split('_')[-1].split('.jpg')[0]) - 1 
         for prompt_data in gt_data["objects"]:
-            label = prompt_data['category']
-            box = np.asarray(prompt_data['bbox']).reshape(-1)           # x1y1x2y2
+            label = prompt_data['category']            
             mask = polygon_to_mask((h, w), prompt_data['segmentation'])
             if img_ann[label].get('mask', None) is not None:
                 mask = stack_mask(img_ann[label]['mask'], mask)
-                img_ann[label]['bboxes'] = np.concatenate(
-                    [img_ann[label]['bboxes'].reshape(-1, 4), box.reshape(-1, 4)], axis=0)
-            else:
-                img_ann[label]['bboxes'] = box
             img_ann[label]['mask'] = mask
             
             # # save for visulsization
@@ -92,13 +87,15 @@ def eval_gt_lerfdata(json_folder: Union[str, Path] = None, ouput_path: Path = No
     return gt_ann, (h, w), img_paths
 
 
-def activate_stream(sem_map, 
-                    image, 
-                    clip_model, 
-                    image_name: Path = None,
-                    img_ann: Dict = None, 
-                    thresh : float = 0.5, 
+def activate_stream(sem_map,  # 语义图
+                    image,  # 输入图像，用于显示和处理激活图。
+                    clip_model, # CLIP 模型实例，用于获取语义映射的最大激活值。
+                    image_name: Path = None, #  保存图像和热力图的路径。
+                    img_ann: Dict = None,  # 图像标注（annotations），包括每个语义对应的掩膜（mask）。
+                    thresh : float = 0.5, # 用于计算掩膜的阈值（0.5表示只有超过50%激活值的区域才被认为是目标）。
                     colormap_options = None):
+    
+    # sem_map 是输入的语义图（semantic map），通常包含了每个像素在不同语义类别下的激活值。
     valid_map = clip_model.get_max_across(sem_map)                 # 3xkx832x1264
     n_head, n_prompt, h, w = valid_map.shape
 
@@ -109,6 +106,7 @@ def activate_stream(sem_map,
         mask_lvl = np.zeros((n_head, h, w))
         for i in range(n_head):
             # NOTE 加滤波结果后的激活值图中找最大值点
+            # 对一个二维热力图（valid_map[i][k]）进行局部平均平滑，以减缓或抑制图像中的高频噪声，增强其结构信息
             scale = 30
             kernel = np.ones((scale,scale)) / (scale**2)
             np_relev = valid_map[i][k].cpu().numpy()
@@ -116,35 +114,46 @@ def activate_stream(sem_map,
             avg_filtered = torch.from_numpy(avg_filtered).to(valid_map.device)
             valid_map[i][k] = 0.5 * (avg_filtered + valid_map[i][k])
             
+            # 将热力图（heatmap）保存为彩色图像文件
             output_path_relev = image_name / 'heatmap' / f'{clip_model.positives[k]}_{i}'
             output_path_relev.parent.mkdir(exist_ok=True, parents=True)
             colormap_saving(valid_map[i][k].unsqueeze(-1), colormap_options,
                             output_path_relev)
             
             # NOTE 与lerf一致，激活值低于0.5的认为是背景
+
+            # 先从 valid_map[i][k] 获取某个特定位置的热力图然后限定在0-1范围,再在最后添加一个维度使之变成(N, H, W, 1)，这是为了后续可视化的需求
             p_i = torch.clip(valid_map[i][k] - 0.5, 0, 1).unsqueeze(-1)
+            # 再对p_i做了归一化处理,范围缩放到 [0, 1],colormaps.apply_colormap 将该值映射为一个彩色图像，采用 turbo 调色板
             valid_composited = colormaps.apply_colormap(p_i / (p_i.max() + 1e-6), colormaps.ColormapOptions("turbo"))
+            # 创建一个掩码（mask）,其值为 True 或 False，表示 valid_map[i][k] 中小于 0.5 的位置,mask是一个二维矩阵
             mask = (valid_map[i][k] < 0.5).squeeze()
+            # 对于掩码中值为 True 的区域，将合成图像 valid_composited 中的对应像素值设置为原始图像 image 中的像素值的 30%（即进行一些颜色混合，减少亮度）
             valid_composited[mask, :] = image[mask, :] * 0.3
             output_path_compo = image_name / 'composited' / f'{clip_model.positives[k]}_{i}'
             output_path_compo.parent.mkdir(exist_ok=True, parents=True)
             colormap_saving(valid_composited, colormap_options, output_path_compo)
             
-            # truncate the heatmap into mask
+            # truncate the heatmap into mask 
             output = valid_map[i][k]
             output = output - torch.min(output)
             output = output / (torch.max(output) + 1e-9)
             output = output * (1.0 - (-1.0)) + (-1.0)
-            output = torch.clip(output, 0, 1)
+            output = torch.clip(output, 0, 1) # 0-1 范围的热力图，可用于生成 mask
 
+            # 热力图转为二值 mask + 平滑
             mask_pred = (output.cpu().numpy() > thresh).astype(np.uint8)
             mask_pred = smooth(mask_pred)
             mask_lvl[i] = mask_pred
+
+            # 保存 GT 掩码（可视化用）
             mask_gt = img_ann[clip_model.positives[k]]['mask'].astype(np.uint8)
             save_path = './masks_cv2/mask_gt_{}.png'.format(k)
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
             cv2.imwrite(save_path, mask_gt * 255)  # 若是二值图，乘 255 可视化
-            # calculate iou
+
+
+            # 计算 IoU（交并比）
             intersection = np.sum(np.logical_and(mask_gt, mask_pred))
             union = np.sum(np.logical_or(mask_gt, mask_pred))
             iou = np.sum(intersection) / np.sum(union)
@@ -164,65 +173,6 @@ def activate_stream(sem_map,
         vis_mask_save(mask_lvl[chosen_lvl], save_path)
 
     return chosen_iou_list, chosen_lvl_list
-
-
-def lerf_localization(sem_map, image, clip_model, image_name, img_ann):
-    output_path_loca = image_name / 'localization'
-    output_path_loca.mkdir(exist_ok=True, parents=True)
-
-    valid_map = clip_model.get_max_across(sem_map)                 # 3xkx832x1264
-    n_head, n_prompt, h, w = valid_map.shape
-    
-    # positive prompts
-    acc_num = 0
-    positives = list(img_ann.keys())
-    for k in range(len(positives)):
-        select_output = valid_map[:, k]
-        
-        # NOTE 平滑后的激活值图中找最大值点
-        scale = 30
-        kernel = np.ones((scale,scale)) / (scale**2)
-        np_relev = select_output.cpu().numpy()
-        avg_filtered = cv2.filter2D(np_relev.transpose(1,2,0), -1, kernel)
-        
-        score_lvl = np.zeros((n_head,))
-        coord_lvl = []
-        for i in range(n_head):
-            score = avg_filtered[..., i].max()
-            coord = np.nonzero(avg_filtered[..., i] == score)
-            score_lvl[i] = score
-            coord_lvl.append(np.asarray(coord).transpose(1,0)[..., ::-1])
-
-        selec_head = np.argmax(score_lvl)
-        coord_final = coord_lvl[selec_head]
-        
-        for box in img_ann[positives[k]]['bboxes'].reshape(-1, 4):
-            flag = 0
-            x1, y1, x2, y2 = box
-            x_min, x_max = min(x1, x2), max(x1, x2)
-            y_min, y_max = min(y1, y2), max(y1, y2)
-            for cord_list in coord_final:
-                if (cord_list[0] >= x_min and cord_list[0] <= x_max and 
-                    cord_list[1] >= y_min and cord_list[1] <= y_max):
-                    acc_num += 1
-                    flag = 1
-                    break
-            if flag != 0:
-                break
-        
-        # NOTE 将平均后的结果与原结果相加，抑制噪声并保持激活边界清晰
-        avg_filtered = torch.from_numpy(avg_filtered[..., selec_head]).unsqueeze(-1).to(select_output.device)
-        torch_relev = 0.5 * (avg_filtered + select_output[selec_head].unsqueeze(-1))
-        p_i = torch.clip(torch_relev - 0.5, 0, 1)
-        valid_composited = colormaps.apply_colormap(p_i / (p_i.max() + 1e-6), colormaps.ColormapOptions("turbo"))
-        mask = (torch_relev < 0.5).squeeze()
-        valid_composited[mask, :] = image[mask, :] * 0.3
-        
-        save_path = output_path_loca / f"{positives[k]}.png"
-        show_result(valid_composited.cpu().numpy(), coord_final,
-                    img_ann[positives[k]]['bboxes'], save_path)
-    return acc_num
-
 
 def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
 
@@ -253,7 +203,6 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
     model.eval()
 
     chosen_iou_all, chosen_lvl_list = [], []
-    acc_num = 0
     for j, idx in enumerate(tqdm(eval_index_list)):
         image_name = Path(output_path) / f'{idx+1:0>5}'
         image_name.mkdir(exist_ok=True, parents=True)
@@ -277,9 +226,6 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
         chosen_iou_all.extend(c_iou_list)
         chosen_lvl_list.extend(c_lvl)
 
-        acc_num_img = lerf_localization(restored_feat, rgb_img, clip_model, image_name, img_ann)
-        acc_num += acc_num_img
-
     # # iou
     mean_iou_chosen = sum(chosen_iou_all) / len(chosen_iou_all)
     logger.info(f'trunc thresh: {mask_thresh}')
@@ -287,11 +233,11 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, json_folder, mask_thresh, enco
     logger.info(f"chosen_lvl: \n{chosen_lvl_list}")
 
     # localization acc
-    total_bboxes = 0
-    for img_ann in gt_ann.values():
-        total_bboxes += len(list(img_ann.keys()))
-    acc = acc_num / total_bboxes
-    logger.info("Localization accuracy: " + f'{acc:.4f}')
+    # total_bboxes = 0
+    # for img_ann in gt_ann.values():
+    #     total_bboxes += len(list(img_ann.keys()))
+    # acc = acc_num / total_bboxes
+    # logger.info("Localization accuracy: " + f'{acc:.4f}')
 
 
 def seed_everything(seed_value):

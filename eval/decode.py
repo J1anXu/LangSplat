@@ -270,8 +270,8 @@ if __name__ == "__main__":
     # NOTE config setting
     dataset_name = args.dataset_name
     mask_thresh = args.mask_thresh
-    # 注意这里改回去
-    feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_npy") for i in range(1,4)]
+    # 注意这里改回去 renders_npy
+    feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/gt_npy") for i in range(1,4)]
     output_path = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_decoded_npy") for i in range(1,4)]
     for path in output_path:
         os.makedirs(path, exist_ok=True)

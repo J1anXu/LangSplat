@@ -148,9 +148,17 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 gaussians.optimizer.step()
                 gaussians.optimizer.zero_grad(set_to_none = True)
 
+            
             if (iteration in checkpoint_iterations):
                 print("\n[ITER {}] Saving Checkpoint".format(iteration))
                 torch.save((gaussians.capture(opt.include_feature), iteration), scene.model_path + "/chkpnt" + str(iteration) + ".pth")
+                
+                if opt.baseline_idx:
+                    print("\n[ITER {}] Saving Checkpoint".format(iteration))
+                    new_path = os.path.join(scene.model_path, opt.baseline_idx)
+                    os.makedirs(new_path, exist_ok=True)
+                    torch.save((gaussians.capture(opt.include_feature), iteration), new_path + "/chkpnt" + str(iteration) + ".pth")
+                    print(f"save to {new_path} success!")
             
 def prepare_output_and_logger(args):    
     if not args.model_path:
@@ -222,11 +230,13 @@ if __name__ == "__main__":
     parser.add_argument('--port', type=int, default=55555)
     parser.add_argument('--debug_from', type=int, default=-1)
     parser.add_argument('--detect_anomaly', action='store_true', default=False)
-    parser.add_argument("--test_iterations", nargs="+", type=int, default=[ 25_000, 26_000, 27_000, 28_000, 29_000, 30_000])
-    parser.add_argument("--save_iterations", nargs="+", type=int, default=[ 25_000, 26_000, 27_000, 28_000, 29_000, 30_000])
+    parser.add_argument("--test_iterations", nargs="+", type=int, default=[30_000])
+    parser.add_argument("--save_iterations", nargs="+", type=int, default=[30_000])
     parser.add_argument("--quiet", action="store_true")
-    parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[ 25_000, 26_000, 27_000, 28_000, 29_000, 30_000])
+    parser.add_argument("--checkpoint_iterations", nargs="+", type=int, default=[30_000])
     parser.add_argument("--start_checkpoint", type=str, default = None)
+    parser.add_argument("--baseline_idx", type=int, default=None)
+
     args = parser.parse_args(sys.argv[1:])
     args.save_iterations.append(args.iterations)
     print(args)
