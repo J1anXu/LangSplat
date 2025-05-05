@@ -17,6 +17,7 @@ class Autoencoder_dataset(Dataset):
             else:
                 data = np.concatenate([data, features], axis=0)
         self.data = data
+        print(f"finally. the data size in Autoencoder_dataset is {data.shape} ")
 
     def __getitem__(self, index):
         data = torch.tensor(self.data[index])
