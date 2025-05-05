@@ -238,7 +238,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
 
         with torch.no_grad():
             lvl, h, w, _ = sem_feat.shape
-            restored_feat = model.decode(sem_feat.flatten(0, 2))
+            feat_flatten = sem_feat.flatten(0, 2)
+            restored_feat = model.decode(feat_flatten)
             restored_feat = restored_feat.view(lvl, h, w, -1)           # 3x832x1264x512
         
         # TODO 蒙版的名字
@@ -300,7 +301,8 @@ if __name__ == "__main__":
     # NOTE config setting
     dataset_name = args.dataset_name
     mask_thresh = args.mask_thresh
-    feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/renders_npy") for i in range(1,4)]
+    # 注意这里改回去
+    feat_dir = [os.path.join(args.feat_dir, dataset_name+f"_{i}", "train/ours_None/gt_npy") for i in range(1,4)]
     output_path = os.path.join(args.output_dir, dataset_name)
     ae_ckpt_path = os.path.join(args.ae_ckpt_dir, dataset_name, "best_ckpt.pth")
     dataset_path = os.path.join(args.dataset_path, dataset_name)
