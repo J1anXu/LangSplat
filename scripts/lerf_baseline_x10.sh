@@ -5,7 +5,7 @@ casenames=("waldo_kitchen")
 mkdir -p logs/langsplat/train
 mkdir -p logs/langsplat/render
 mkdir -p logs/langsplat/eval
-N=10
+N=100
 for baseline_idx in $(seq 1 $N)
 do
 

@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"  
+
 import glob
 import random
 from collections import defaultdict
@@ -16,7 +18,7 @@ import torch
 import time
 from tqdm import tqdm
 from PIL import Image
-
+from skimage.io import imsave
 import sys
 # 为了方便debug
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -26,6 +28,21 @@ import colormaps
 from autoencoder.model import Autoencoder
 from openclip_encoder import OpenCLIPNetwork
 from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
+
+def threshold_mask(mask, threshold=127):
+    """
+    对降采样后的mask进行阈值化处理
+    将大于threshold的像素值设置为255，小于threshold的设置为0
+    """
+    # 确保 mask 是 8 位单通道图像（0-255的灰度图）
+    if isinstance(mask, torch.Tensor):
+        mask = mask.numpy()  # 转换为 numpy 数组
+
+    # 使用 OpenCV 对图像进行阈值化处理
+    _, binary_mask = cv2.threshold(mask, threshold, 255, cv2.THRESH_BINARY)
+
+    return binary_mask
+
 
 def downsample(image):
 
@@ -134,7 +151,8 @@ def eval_gt_lerfdata(dataset_path) -> Dict:
     # segmentations_path = os.path.join(dataset_path, 'segmentations')
     # # 获取 segmentations_path 下所有子文件夹的名称
     segmentations_path = os.path.expanduser('~/LangSplat/data/3dovs/bed/segmentations')
-
+    temp_save_path = os.path.expanduser('~/LangSplat/temp_ovs')
+    os.makedirs(temp_save_path, exist_ok=True)
     label_names = [
         name for name in os.listdir(segmentations_path) if os.path.isdir(os.path.join(segmentations_path, name))
     ]
@@ -162,16 +180,31 @@ def eval_gt_lerfdata(dataset_path) -> Dict:
                 mask_name_wo_ext = os.path.splitext(mask_name)[0]  
                 # 灰度图
                 mask = Image.open(mask_path).convert('L') 
+
+
+                # # 保存图像到本地，指定保存路径和文件格式
+                # save_path = os.path.join(temp_save_path, f"{label}_{mask_name}.png")
+                # mask.save(save_path)
                 # 降采样（Resize）
-                mask = downsample(mask)
+                mask_downsapled = downsample(mask)
+                # 降采样把二值采样成多个值了
+                mask_downsapled = threshold_mask(mask_downsapled)
+
                 dict_dict[mask_name_wo_ext]={
-                    'mask': mask,
+                    'mask': mask_downsapled,
                 }
 
         gt_ann[label] = dict_dict
+    return gt_ann, mask_downsapled.shape, image_paths
 
-
-    return gt_ann, mask.shape, image_paths
+def check_binary_mask(mask, name="mask"):
+    unique_vals = np.unique(mask)
+    if np.array_equal(unique_vals, [0]) or np.array_equal(unique_vals, [1]) or np.array_equal(unique_vals, [0, 1]):
+        print(f"{name} is binary.")
+        return True
+    else:
+        print(f"⚠️ {name} is NOT binary. Unique values: {unique_vals}")
+        return False
 
 
 def activate_stream(sem_map,  # 语义图
@@ -180,7 +213,8 @@ def activate_stream(sem_map,  # 语义图
                     image_name: Path = None, #  保存图像和热力图的路径。
                     img_ann: Dict = None,  # 图像标注（annotations），包括每个语义对应的掩膜（mask）。
                     thresh : float = 0.5, # 用于计算掩膜的阈值（0.5表示只有超过50%激活值的区域才被认为是目标）。
-                    colormap_options = None):
+                    colormap_options = None,
+                    idx = None):
     
     # sem_map 是输入的语义图（semantic map），通常包含了每个像素在不同语义类别下的激活值。
     valid_map = clip_model.get_max_across(sem_map)                 # 3xkx832x1264
@@ -188,6 +222,8 @@ def activate_stream(sem_map,  # 语义图
     image = downsample_rgb(image)
     # positive prompts
     chosen_iou_list, chosen_lvl_list = [], []
+    temp_save_path = os.path.expanduser('~/LangSplat/temp_ovs')
+
     for k in range(n_prompt):
         iou_lvl = np.zeros(n_head)
         mask_lvl = np.zeros((n_head, h, w))
@@ -235,20 +271,44 @@ def activate_stream(sem_map,  # 语义图
 
             # 保存 GT 掩码（可视化用）
             # 获取 mask tensor
-            mask_tensor = img_ann[clip_model.positives[k]]['mask']
+            mask_data = img_ann[clip_model.positives[k]]['mask']
             # 如果是 torch.Tensor，转换为 numpy 数组
-            if isinstance(mask_tensor, torch.Tensor):
-                mask = mask_tensor.cpu().numpy()  # 转换为 numpy 数组
-            # 然后进行类型转换
-            mask_gt = mask.astype(np.uint8)
+            if isinstance(mask_data, torch.Tensor):
+                mask_npy = mask_data.cpu().numpy()  # 转换为 numpy 数组
+            else:
+                mask_npy = mask_data
 
-            save_path = f'./masks_cv2/mask_gt_{k}_{i}.png'
-            os.makedirs(os.path.dirname(save_path), exist_ok=True)
-            cv2.imwrite(save_path, mask_gt * 255)  # 若是二值图，乘 255 可视化
+            # save_dir = './masks_cv2'
+            # os.makedirs(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), exist_ok=True)
+            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), mask )         
+            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225.png'), mask * 255)        
+
+            # 然后进行类型转换
+            mask_gt = mask_npy.astype(np.uint8)
+            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og_astype.png'), mask_gt) 
+            # temp = (mask * 255).astype(np.uint8)           
+            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225_astype.png'), temp)         
+            mask_gt_binary = (mask_gt > 0).astype(np.uint8)  # 非0视为前景
+
+            check_binary_mask(mask_gt, name="mask_gt")
+            check_binary_mask(mask_pred, name="mask_pred")
+            check_binary_mask(mask_gt_binary, name="mask_gt_binary")
+
+            # 假设 mask_gt_binary 和 mask_pred 是布尔类型的二维数组
+            # 将布尔数组转换为0或255的图像
+            mask_gt_image = (mask_gt_binary.astype(np.uint8) * 255)  # 将True映射为255，False映射为0
+            mask_pred_image = (mask_pred.astype(np.uint8) * 255)
+
+            # 保存为图片
+            save_dir = f'./masks_${idx}'
+            os.makedirs(save_dir, exist_ok=True)
+
+            imsave(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), mask_gt_image)
+            imsave(os.path.join(save_dir, f'mask_pred_{k}_{i}_og.png'), mask_pred_image)  # 保存为mask_pred.png
 
 
             # 计算 IoU（交并比）
-            intersection = np.sum(np.logical_and(mask_gt, mask_pred))
+            intersection = np.sum(np.logical_and(mask_gt_binary, mask_pred))
             union = np.sum(np.logical_or(mask_gt, mask_pred))
             iou = np.sum(intersection) / np.sum(union)
             iou_lvl[i] = iou
@@ -317,7 +377,7 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
         clip_model.set_positives(list(img_ann.keys()))
         
         c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
-                                            thresh=mask_thresh, colormap_options=colormap_options)
+                                            thresh=mask_thresh, colormap_options=colormap_options,idx)
         chosen_iou_all.extend(c_iou_list)
         chosen_lvl_list.extend(c_lvl)
 
