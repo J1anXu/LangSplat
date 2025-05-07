@@ -366,12 +366,13 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
     # eval_index_list[2] = 0
     # eval_index_list[3] = 30
     # eval_index_list[4] = 23
-    
+    print(feat_dir)
     for i in range(len(feat_dir)):
         # 加载一个level下所有的渲染出来的语义图npy路径,类似于/data2/jian/LangSplat/output/bed_1/train/ours_None/renders_npy/00.npy
         feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
                                key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
-        
+        print(feat_paths_lvl)
+        print(eval_index_list)
         # eval_index_list 里边有的才去加载,这里只加载 10 4 0 30 23对应的语义图
         for j, idx in enumerate(eval_index_list):
             # j是在eval_index_list里的index idx其实就是10 4 0 30 23
