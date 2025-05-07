@@ -27,7 +27,7 @@ sys.path.append("..")
 import colormaps
 from autoencoder.model import Autoencoder
 from openclip_encoder import OpenCLIPNetwork
-from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
+from eval.utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
 
 def threshold_mask(mask, threshold=127):
     """
@@ -146,11 +146,18 @@ def get_logger(name, log_file=None, log_level=logging.INFO, file_mode='w'):
     return logger
 
 
-def eval_gt_lerfdata(dataset_path) -> Dict:
+def eval_gt_lerfdata(dataset_path, dataset_name) -> Dict:
     # Step1. 构造label路径(img_paths)
     # segmentations_path = os.path.join(dataset_path, 'segmentations')
     # # 获取 segmentations_path 下所有子文件夹的名称
-    segmentations_path = os.path.expanduser('~/LangSplat/data/3dovs/bed/segmentations')
+
+    json_path = os.path.expanduser('~/LangSplat/eval/3dovs_feature_map_order.json')
+    with open(json_path, 'r') as f:
+        config = json.load(f)
+    # 提取 file_order 列表 这是featuremap的真实顺序
+    file_order = config.get(dataset_name, [])
+
+    segmentations_path = f"{dataset_path}/segmentations"
     temp_save_path = os.path.expanduser('~/LangSplat/temp_ovs')
     os.makedirs(temp_save_path, exist_ok=True)
     label_names = [
@@ -277,7 +284,6 @@ def activate_stream(sem_map,  # 语义图
             # 保存 GT 掩码（可视化用）
             # 获取 mask tensor
             mask_gt_unit8 = img_ann[clip_model.positives[k]]['mask']
-            mask_gt_class = img_ann[clip_model.positives[k]]['mask_gt_class']
 
             # 如果是 torch.Tensor，转换为 numpy 数组
             if isinstance(mask_gt_unit8, torch.Tensor):
@@ -335,7 +341,7 @@ def activate_stream(sem_map,  # 语义图
 
     return chosen_iou_list, chosen_lvl_list
 
-def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger):
+def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, encoder_hidden_dims, decoder_hidden_dims, logger, dataset_name):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     colormap_options = colormaps.ColormapOptions(
@@ -344,8 +350,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
         colormap_min=-1.0,
         colormap_max=1.0,
     )
-
-    gt_ann, image_shape, image_paths = eval_gt_lerfdata(dataset_path)
+    # dataset_path = '/data2/jian/LangSplat/data/3dovs/bed'
+    gt_ann, image_shape, image_paths = eval_gt_lerfdata(dataset_path, dataset_name)
     
     eval_index_list = [int(idx) for idx in list(gt_ann.keys())]
     compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
@@ -399,8 +405,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
             restored_feat = restored_feat.view(lvl, h, w, -1)           # 3x832x1264x512
         
         img_ann = gt_ann[f'{idx:02d}']
-        clip_model.set_positives(list(img_ann.keys()))
-        
+        keys = list(img_ann.keys())
+        clip_model.set_positives(keys)
         c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
                                             thresh=mask_thresh, colormap_options=colormap_options,idx = idx)
         chosen_iou_all.extend(c_iou_list)
@@ -470,4 +476,4 @@ if __name__ == "__main__":
     logger = get_logger(f'{dataset_name}', log_file=log_file, log_level=logging.INFO)
     dataset_path = os.path.join(args.dataset_path, dataset_name)
 
-    evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, args.encoder_dims, args.decoder_dims, logger)
+    evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, args.encoder_dims, args.decoder_dims, logger, dataset_name)
