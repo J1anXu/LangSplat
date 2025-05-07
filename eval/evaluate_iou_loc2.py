@@ -208,7 +208,7 @@ def check_binary_mask(mask, name="mask"):
 
 
 def activate_stream(sem_map,  # 语义图
-                    image,  # 输入图像，用于显示和处理激活图。
+                    image,    # 输入图像，用于显示和处理激活图。
                     clip_model, # CLIP 模型实例，用于获取语义映射的最大激活值。
                     image_name: Path = None, #  保存图像和热力图的路径。
                     img_ann: Dict = None,  # 图像标注（annotations），包括每个语义对应的掩膜（mask）。
@@ -217,12 +217,16 @@ def activate_stream(sem_map,  # 语义图
                     idx = None):
     
     # sem_map 是输入的语义图（semantic map），通常包含了每个像素在不同语义类别下的激活值。
-    valid_map = clip_model.get_max_across(sem_map)                 # 3xkx832x1264
+    # sem_map:[3, 1080, 1440, 512]
+    # valid_map:[3, 6, 1080, 1440]
+    valid_map = clip_model.get_max_across(sem_map) #[head,h,w,c]->[head,prompt,h,w] # 3xkx832x1264
+    # sem_map是作者提供的,他又没说输出是按什么顺序,所以顺序乱了很正常
+
+
     n_head, n_prompt, h, w = valid_map.shape
     image = downsample_rgb(image)
     # positive prompts
     chosen_iou_list, chosen_lvl_list = [], []
-    temp_save_path = os.path.expanduser('~/LangSplat/temp_ovs')
 
     for k in range(n_prompt):
         iou_lvl = np.zeros(n_head)
@@ -232,6 +236,7 @@ def activate_stream(sem_map,  # 语义图
             # 对一个二维热力图（valid_map[i][k]）进行局部平均平滑，以减缓或抑制图像中的高频噪声，增强其结构信息
             scale = 30
             kernel = np.ones((scale,scale)) / (scale**2)
+            # 取出第K个
             np_relev = valid_map[i][k].cpu().numpy()
             avg_filtered = cv2.filter2D(np_relev, -1, kernel)
             avg_filtered = torch.from_numpy(avg_filtered).to(valid_map.device)
@@ -265,18 +270,20 @@ def activate_stream(sem_map,  # 语义图
             output = torch.clip(output, 0, 1) # 0-1 范围的热力图，可用于生成 mask
 
             # 热力图转为二值 mask + 平滑
-            mask_pred = (output.cpu().numpy() > thresh).astype(np.uint8)
-            mask_pred = smooth(mask_pred)
-            mask_lvl[i] = mask_pred
+            mask_pred_uint8 = (output.cpu().numpy() > thresh).astype(np.uint8)
+            mask_pred_uint8 = smooth(mask_pred_uint8)
+            mask_lvl[i] = mask_pred_uint8
 
             # 保存 GT 掩码（可视化用）
             # 获取 mask tensor
-            mask_data = img_ann[clip_model.positives[k]]['mask']
+            mask_gt_unit8 = img_ann[clip_model.positives[k]]['mask']
+            mask_gt_class = img_ann[clip_model.positives[k]]['mask_gt_class']
+
             # 如果是 torch.Tensor，转换为 numpy 数组
-            if isinstance(mask_data, torch.Tensor):
-                mask_npy = mask_data.cpu().numpy()  # 转换为 numpy 数组
+            if isinstance(mask_gt_unit8, torch.Tensor):
+                mask_npy = mask_gt_unit8.cpu().numpy()  # 转换为 numpy 数组
             else:
-                mask_npy = mask_data
+                mask_npy = mask_gt_unit8
 
             # save_dir = './masks_cv2'
             # os.makedirs(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), exist_ok=True)
@@ -284,23 +291,23 @@ def activate_stream(sem_map,  # 语义图
             # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225.png'), mask * 255)        
 
             # 然后进行类型转换
-            mask_gt = mask_npy.astype(np.uint8)
+            mask_gt_unit8 = mask_npy.astype(np.uint8)
             # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og_astype.png'), mask_gt) 
             # temp = (mask * 255).astype(np.uint8)           
             # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225_astype.png'), temp)         
-            mask_gt_binary = (mask_gt > 0).astype(np.uint8)  # 非0视为前景
+            mask_gt_binary_unit8 = (mask_gt_unit8 > 0).astype(np.uint8)  # 非0视为前景
 
-            check_binary_mask(mask_gt, name="mask_gt")
-            check_binary_mask(mask_pred, name="mask_pred")
-            check_binary_mask(mask_gt_binary, name="mask_gt_binary")
+            check_binary_mask(mask_gt_unit8, name="mask_gt")
+            check_binary_mask(mask_pred_uint8, name="mask_pred")
+            check_binary_mask(mask_gt_binary_unit8, name="mask_gt_binary")
 
             # 假设 mask_gt_binary 和 mask_pred 是布尔类型的二维数组
             # 将布尔数组转换为0或255的图像
-            mask_gt_image = (mask_gt_binary.astype(np.uint8) * 255)  # 将True映射为255，False映射为0
-            mask_pred_image = (mask_pred.astype(np.uint8) * 255)
+            mask_gt_image = (mask_gt_binary_unit8.astype(np.uint8) * 255)  # 将True映射为255，False映射为0
+            mask_pred_image = (mask_pred_uint8.astype(np.uint8) * 255)
 
             # 保存为图片
-            save_dir = f'./masks_${idx}'
+            save_dir = f'./masks_{idx}'
             os.makedirs(save_dir, exist_ok=True)
 
             imsave(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), mask_gt_image)
@@ -308,8 +315,8 @@ def activate_stream(sem_map,  # 语义图
 
 
             # 计算 IoU（交并比）
-            intersection = np.sum(np.logical_and(mask_gt_binary, mask_pred))
-            union = np.sum(np.logical_or(mask_gt, mask_pred))
+            intersection = np.sum(np.logical_and(mask_gt_binary_unit8, mask_pred_uint8))
+            union = np.sum(np.logical_or(mask_gt_unit8, mask_pred_uint8))
             iou = np.sum(intersection) / np.sum(union)
             iou_lvl[i] = iou
 
@@ -342,12 +349,28 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
     
     eval_index_list = [int(idx) for idx in list(gt_ann.keys())]
     compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
+    
+    # 每个level下的每个图片只对应一个大的语义热力图
+
+    # feat_dir[0] = '/data2/jian/LangSplat/output/bed_1/train/ours_None/renders_npy'
+    # feat_dir[1] = '/data2/jian/LangSplat/output/bed_2/train/ours_None/renders_npy'
+    # feat_dir[2] = '/data2/jian/LangSplat/output/bed_3/train/ours_None/renders_npy'
+    # eval_index_list[0] = 10
+    # eval_index_list[1] = 4
+    # eval_index_list[2] = 0
+    # eval_index_list[3] = 30
+    # eval_index_list[4] = 23
+    
     for i in range(len(feat_dir)):
+        # 加载一个level下所有的渲染出来的语义图npy路径,类似于/data2/jian/LangSplat/output/bed_1/train/ours_None/renders_npy/00.npy
         feat_paths_lvl = sorted(glob.glob(os.path.join(feat_dir[i], '*.npy')),
                                key=lambda file_name: int(os.path.basename(file_name).split(".npy")[0]))
+        
+        # eval_index_list 里边有的才去加载,这里只加载 10 4 0 30 23对应的语义图
         for j, idx in enumerate(eval_index_list):
-            print(compressed_sem_feats[i][j].shape)
-            print(np.load(feat_paths_lvl[idx]).shape)
+            # j是在eval_index_list里的index idx其实就是10 4 0 30 23
+            print(f'compressed_sem_feats[i][j].shape = {compressed_sem_feats[i][j].shape}')
+            print(f'np.load(feat_paths_lvl[idx]).shape = {np.load(feat_paths_lvl[idx]).shape}')
             compressed_sem_feats[i][j] = np.load(feat_paths_lvl[idx])
 
     # instantiate autoencoder and openclip
@@ -364,7 +387,9 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
         
         sem_feat = compressed_sem_feats[:, j, ...]
         sem_feat = torch.from_numpy(sem_feat).float().to(device)
-        rgb_img = cv2.imread(image_paths[j])[..., ::-1]
+        image_path_j = os.path.expanduser(image_paths[j])
+
+        rgb_img = cv2.imread(image_path_j)[..., ::-1]
         rgb_img = (rgb_img / 255.0).astype(np.float32)
         rgb_img = torch.from_numpy(rgb_img).to(device)
 
