@@ -58,13 +58,47 @@ do
     done
     wait  # 等待渲染完成
 
-
-    CUDA_VISIBLE_DEVICES=3 bash -c "
-        cd eval
-        nohup sh eval_3dovs.sh ${casename} > ../logs/langsplat/eval/${casename}.log 2>&1
-    " &
 done
 
 
-wait  # 等待所有评估完成
-echo "所有任务完成"
+# ---------- 阶段 2：并行评估 ----------
+echo "开始评估阶段..."
+eval_gpu_list=(0 1 2 3 4 5)
+max_jobs=${#eval_gpu_list[@]}
+pids=()
+
+for i in "${!casenames[@]}"
+do
+    casename=${casenames[$i]}
+    gpu_index=$((i % max_jobs))
+    gpu_id=${eval_gpu_list[$gpu_index]}
+
+    echo "开始评估 ${casename} 使用 GPU ${gpu_id}"
+
+    # 启动评估任务
+    CUDA_VISIBLE_DEVICES=$gpu_id bash -c "
+        cd eval
+        nohup sh eval_3dovs.sh ${casename} > ../logs/langsplat/eval/${casename}.log 2>&1
+    " &
+
+    pids+=($!)
+
+    # 控制并发数量：最多同时 $max_jobs 个任务
+    if (( ${#pids[@]} >= max_jobs )); then
+        wait -n  # 等待任意一个完成
+        # 移除已完成的 PID
+        new_pids=()
+        for pid in "${pids[@]}"; do
+            if kill -0 "$pid" 2>/dev/null; then
+                new_pids+=($pid)
+            fi
+        done
+        pids=("${new_pids[@]}")
+    fi
+done
+
+# 等待所有剩余任务完成
+wait
+echo "所有评估任务完成"
+
+

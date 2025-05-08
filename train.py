@@ -153,7 +153,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 print("\n[ITER {}] Saving Checkpoint".format(iteration))
                 torch.save((gaussians.capture(opt.include_feature), iteration), scene.model_path + "/chkpnt" + str(iteration) + ".pth")
                 
-                if opt.baseline_idx:
+                if hasattr(opt, 'baseline_idx') and opt.baseline_idx:
                     print("\n[ITER {}] Saving Checkpoint".format(iteration))
                     new_path = os.path.join(scene.model_path, opt.baseline_idx)
                     os.makedirs(new_path, exist_ok=True)

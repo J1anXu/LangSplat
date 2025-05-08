@@ -1,0 +1,274 @@
+Processing bed
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/bed_lv.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/bed_lv.log: No such file or directory
+Processing bed
+Processing bed
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv3.log: No such file or directory
+Processing bench
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/bench.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/bench.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv3.log: No such file or directory
+Processing blue_sofa
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/blue_sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/blue_sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv3.log: No such file or directory
+Processing covered_desk
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/covered_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/covered_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv3.log: No such file or directory
+Processing lawn
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/lawn.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/lawn.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv3.log: No such file or directory
+Processing office_desk
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/office_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/office_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv3.log: No such file or directory
+Processing room
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/room.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/room.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv3.log: No such file or directory
+Processing snacks
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/snacks.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/snacks.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv3.log: No such file or directory
+Processing sofa
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv3.log: No such file or directory
+Processing table
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/table.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/table.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv3.log: No such file or directory
+开始评估 bed 使用 GPU 2
+开始评估 bench 使用 GPU 3
+开始评估 blue_sofa 使用 GPU 4
+开始评估 covered_desk 使用 GPU 5
+开始评估 lawn 使用 GPU 2
+开始评估 office_desk 使用 GPU 3
+开始评估 room 使用 GPU 4
+开始评估 snacks 使用 GPU 5
+开始评估 sofa 使用 GPU 2
+开始评估 table 使用 GPU 3
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/bed.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/bench.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/blue_sofa.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/covered_desk.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/lawn.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/room.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/snacks.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/office_desk.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/table.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/sofa.log: No such file or directory
+所有任务完成
+Processing bed
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv1.log: No such file or directory
+Processing bench
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/bench.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/bench.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv3.log: No such file or directory
+Processing blue_sofa
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/blue_sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/blue_sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv3.log: No such file or directory
+Processing covered_desk
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/covered_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/covered_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv3.log: No such file or directory
+Processing lawn
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/lawn.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/lawn.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv3.log: No such file or directory
+Processing office_desk
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/office_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/office_desk.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv3.log: No such file or directory
+Processing room
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/room.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/room.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv3.log: No such file or directory
+Processing snacks
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/snacks.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/snacks.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv3.log: No such file or directory
+Processing sofa
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/sofa.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv3.log: No such file or directory
+Processing table
+scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
+scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/table.log: No such file or directory
+scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/table.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv1.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv2.log: No such file or directory
+scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv3.log: No such file or directory
+开始评估 bed 使用 GPU 2
+开始评估 bench 使用 GPU 3
+开始评估 blue_sofa 使用 GPU 4
+开始评估 covered_desk 使用 GPU 5
+开始评估 lawn 使用 GPU 2
+开始评估 office_desk 使用 GPU 3
+开始评估 room 使用 GPU 4
+开始评估 snacks 使用 GPU 5
+开始评估 sofa 使用 GPU 2
+开始评估 table 使用 GPU 3
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/bed.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/blue_sofa.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/bench.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/covered_desk.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/office_desk.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/sofa.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/lawn.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/room.log: No such file or directory
+bash: line 2: cd: eval: No such file or directory
+bash: line 3: ../logs/langsplat/eval/snacks.log: No such file or directory
+bash: line 3: ../logs/langsplat/eval/table.log: No such file or directory
+所有任务完成
+Processing bed
+Processing bench
+scripts/3dovs_baseline.sh: line 69: syntax error: unexpected end of file
+scripts/3dovs_baseline.sh: line 61: syntax error near unexpected token `do'
+scripts/3dovs_baseline.sh: line 61: `    do'
+Processing bed
+Processing bed
+Processing bench
+Processing blue_sofa
+Processing covered_desk
+Processing lawn
+Processing office_desk
+Processing room
+Processing snacks
