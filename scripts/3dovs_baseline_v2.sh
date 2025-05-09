@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 按顺序的 每个scene都正常训练然后评估
-casenames=("bed" "bench" "blue_sofa" "covered_desk" "lawn" "office_desk" "room" "snacks" "sofa" "table")
+# 按顺序的 每个scene都正常训练然后并行评估
+casenames=("covered_desk" "snacks" "table")
 mkdir -p logs/langsplat/train_ae
 mkdir -p logs/langsplat/render_ae
 mkdir -p logs/langsplat/train

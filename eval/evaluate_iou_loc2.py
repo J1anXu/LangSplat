@@ -316,7 +316,7 @@ def activate_stream(sem_map,  # 语义图
             mask_pred_image = (mask_pred_uint8.astype(np.uint8) * 255)
 
             # 保存为图片
-            save_dir = f'./masks_{idx}'
+            save_dir = f'./mask_res/{idx:02d}/masks_{idx}'
             os.makedirs(save_dir, exist_ok=True)
 
             imsave(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), mask_gt_image)
