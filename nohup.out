@@ -272,3 +272,63 @@ Processing lawn
 Processing office_desk
 Processing room
 Processing snacks
+Processing sofa
+Processing table
+scripts/3dovs_baseline.sh: line 67: t: command not found
+所有任务完成
+scripts/3dovs_baseline.sh: line 47: 3115798 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 47: 3116394 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}_lv${level}.log 2>&1  (wd: ~/LangSplat/autoencoder)
+scripts/3dovs_baseline.sh: line 27: 3489430 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 57: 3116398 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+Processing bench
+scripts/3dovs_baseline.sh: line 57: 3115800 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+Processing bench
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/bench_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/bench_lv3.log: No such file or directory
+Processing blue_sofa
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/blue_sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/blue_sofa_lv3.log: No such file or directory
+Processing covered_desk
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/covered_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/covered_desk_lv3.log: No such file or directory
+Processing lawn
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/lawn_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/lawn_lv3.log: No such file or directory
+Processing office_desk
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/office_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/office_desk_lv3.log: No such file or directory
+Processing room
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/room_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/room_lv3.log: No such file or directory
+Processing snacks
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/snacks_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/snacks_lv3.log: No such file or directory
+Processing sofa
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/sofa_lv3.log: No such file or directory
+Processing table
+scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/table_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/table_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 66: syntax error near unexpected token `done'
+scripts/3dovs_baseline.sh: line 66: `done'
+Processing blue_sofa
+Processing blue_sofa
+Processing covered_desk
+Processing covered_desk
+Processing lawn
+Processing lawn
+Processing office_desk
+Processing office_desk
+Processing room
+Processing room
+Processing snacks
+Processing snacks
+Processing sofa
+Processing table
+scripts/3dovs_baseline.sh: line 59: t: command not found
+scripts/3dovs_baseline.sh: line 66: syntax error near unexpected token `done'
+scripts/3dovs_baseline.sh: line 66: `done'
+Processing sofa
+Processing table
+scripts/3dovs_baseline.sh: line 61: syntax error near unexpected token `&'
+scripts/3dovs_baseline.sh: line 61: `&1 &'

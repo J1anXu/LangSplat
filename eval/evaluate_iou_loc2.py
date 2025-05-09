@@ -165,13 +165,16 @@ def eval_gt_lerfdata(dataset_path, dataset_name) -> Dict:
     ]
     print(label_names)
     # 构造完整路径
-    image_paths = [
-        os.path.join(os.path.join(dataset_path, 'images'), f"{folder}.jpg") for folder in label_names
-    ]
+    image_paths = []
+    folder_path = os.path.join(dataset_path, 'images')
+    for label in label_names:
+        # 遍历文件夹中的所有文件
+        for filename in os.listdir(folder_path):
+            # 如果文件名匹配并且是jpg格式（不区分大小写）
+            if filename.lower() == f"{label}.jpg":
+                image_paths.append(os.path.join(folder_path, filename))
 
-    # 打印成你想要的格式
-    for i, path in enumerate(image_paths):
-        print(f"# {i} ='{path}'")
+    print(image_paths)
 
 
     # Step4.读取蒙版  构造gt_ann dict
@@ -303,9 +306,9 @@ def activate_stream(sem_map,  # 语义图
             # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225_astype.png'), temp)         
             mask_gt_binary_unit8 = (mask_gt_unit8 > 0).astype(np.uint8)  # 非0视为前景
 
-            check_binary_mask(mask_gt_unit8, name="mask_gt")
-            check_binary_mask(mask_pred_uint8, name="mask_pred")
-            check_binary_mask(mask_gt_binary_unit8, name="mask_gt_binary")
+            # check_binary_mask(mask_gt_unit8, name="mask_gt")
+            # check_binary_mask(mask_pred_uint8, name="mask_pred")
+            # check_binary_mask(mask_gt_binary_unit8, name="mask_gt_binary")
 
             # 假设 mask_gt_binary 和 mask_pred 是布尔类型的二维数组
             # 将布尔数组转换为0或255的图像
