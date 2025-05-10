@@ -268,10 +268,8 @@ def activate_stream(sem_map,  # 语义图
             # 再对p_i做了归一化处理,范围缩放到[0, 1],colormaps.apply_colormap 将该值映射为一个彩色图像，采用 turbo 调色板
             valid_composited = colormaps.apply_colormap(p_i / (p_i.max() + 1e-6), colormaps.ColormapOptions("turbo"))
 
-            # 创建一个掩码（mask）,其值为 True 或 False，表示 valid_map[i][k] 中小于 0.5 的位置,mask是一个二维矩阵
+            # 把valid_map中值低于0.5的地方设置为原始图像,亮度为0.3
             mask = (valid_map[i][k] < 0.5).squeeze()
-
-            # 对于掩码中值为 True 的区域，将合成图像 valid_composited 中的对应像素值设置为原始图像 image 中的像素值的 30%（即进行一些颜色混合，减少亮度）
             valid_composited[mask, :] = image[mask, :] * 0.3
             output_path_compo = image_name / 'composited' / f'{clip_model.positives[k]}_{i}'
             output_path_compo.parent.mkdir(exist_ok=True, parents=True)
