@@ -223,7 +223,8 @@ def activate_stream(sem_map,  # 语义图
                     img_ann: Dict = None,  # 图像标注（annotations），包括每个语义对应的掩膜（mask）。
                     thresh : float = 0.5, # 用于计算掩膜的阈值（0.5表示只有超过50%激活值的区域才被认为是目标）。
                     colormap_options = None,
-                    idx = None):
+                    idx = None,
+                    scene_name = None):
     
     # sem_map 是输入的语义图（semantic map），通常包含了每个像素在不同语义类别下的激活值。
     # sem_map:[3, 1080, 1440, 512]
@@ -237,34 +238,39 @@ def activate_stream(sem_map,  # 语义图
     # positive prompts
     chosen_iou_list, chosen_lvl_list = [], []
 
+    # 遍历所有语义
     for k in range(n_prompt):
-        iou_lvl = np.zeros(n_head)
-        mask_lvl = np.zeros((n_head, h, w))
+        iou_lv = np.zeros(n_head)
+        mask_lv = np.zeros((n_head, h, w))
+        # 遍历所有level
         for i in range(n_head):
-            # NOTE 加滤波结果后的激活值图中找最大值点
-            # 对一个二维热力图（valid_map[i][k]）进行局部平均平滑，以减缓或抑制图像中的高频噪声，增强其结构信息
+
+            # 取出第i个层级的第k个level的map
+            np_relev = valid_map[i][k].cpu().numpy()
+
+            # 平滑
             scale = 30
             kernel = np.ones((scale,scale)) / (scale**2)
-            # 取出第K个
-            np_relev = valid_map[i][k].cpu().numpy()
             avg_filtered = cv2.filter2D(np_relev, -1, kernel)
             avg_filtered = torch.from_numpy(avg_filtered).to(valid_map.device)
             valid_map[i][k] = 0.5 * (avg_filtered + valid_map[i][k])
             
-            # 将热力图（heatmap）保存为彩色图像文件
+            # 保存热力图heatmap
             output_path_relev = image_name / 'heatmap' / f'{clip_model.positives[k]}_{i}'
             output_path_relev.parent.mkdir(exist_ok=True, parents=True)
             colormap_saving(valid_map[i][k].unsqueeze(-1), colormap_options,
                             output_path_relev)
             
             # NOTE 与lerf一致，激活值低于0.5的认为是背景
-
-            # 先从 valid_map[i][k] 获取某个特定位置的热力图然后限定在0-1范围,再在最后添加一个维度使之变成(N, H, W, 1)，这是为了后续可视化的需求
+            # 限定在0-1范围,再在最后添加一个维度使之变成(N, H, W, 1)
             p_i = torch.clip(valid_map[i][k] - 0.5, 0, 1).unsqueeze(-1)
-            # 再对p_i做了归一化处理,范围缩放到 [0, 1],colormaps.apply_colormap 将该值映射为一个彩色图像，采用 turbo 调色板
+
+            # 再对p_i做了归一化处理,范围缩放到[0, 1],colormaps.apply_colormap 将该值映射为一个彩色图像，采用 turbo 调色板
             valid_composited = colormaps.apply_colormap(p_i / (p_i.max() + 1e-6), colormaps.ColormapOptions("turbo"))
+
             # 创建一个掩码（mask）,其值为 True 或 False，表示 valid_map[i][k] 中小于 0.5 的位置,mask是一个二维矩阵
             mask = (valid_map[i][k] < 0.5).squeeze()
+
             # 对于掩码中值为 True 的区域，将合成图像 valid_composited 中的对应像素值设置为原始图像 image 中的像素值的 30%（即进行一些颜色混合，减少亮度）
             valid_composited[mask, :] = image[mask, :] * 0.3
             output_path_compo = image_name / 'composited' / f'{clip_model.positives[k]}_{i}'
@@ -281,10 +287,9 @@ def activate_stream(sem_map,  # 语义图
             # 热力图转为二值 mask + 平滑
             mask_pred_uint8 = (output.cpu().numpy() > thresh).astype(np.uint8)
             mask_pred_uint8 = smooth(mask_pred_uint8)
-            mask_lvl[i] = mask_pred_uint8
+            mask_lv[i] = mask_pred_uint8
 
             # 保存 GT 掩码（可视化用）
-            # 获取 mask tensor
             mask_gt_unit8 = img_ann[clip_model.positives[k]]['mask']
 
             # 如果是 torch.Tensor，转换为 numpy 数组
@@ -293,53 +298,46 @@ def activate_stream(sem_map,  # 语义图
             else:
                 mask_npy = mask_gt_unit8
 
-            # save_dir = './masks_cv2'
-            # os.makedirs(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), exist_ok=True)
-            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), mask )         
-            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225.png'), mask * 255)        
-
-            # 然后进行类型转换
-            mask_gt_unit8 = mask_npy.astype(np.uint8)
-            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og_astype.png'), mask_gt) 
-            # temp = (mask * 255).astype(np.uint8)           
-            # cv2.imwrite(os.path.join(save_dir, f'mask_gt_{k}_{i}_og*225_astype.png'), temp)         
+            mask_gt_unit8 = mask_npy.astype(np.uint8)      
             mask_gt_binary_unit8 = (mask_gt_unit8 > 0).astype(np.uint8)  # 非0视为前景
-
-            # check_binary_mask(mask_gt_unit8, name="mask_gt")
-            # check_binary_mask(mask_pred_uint8, name="mask_pred")
-            # check_binary_mask(mask_gt_binary_unit8, name="mask_gt_binary")
-
-            # 假设 mask_gt_binary 和 mask_pred 是布尔类型的二维数组
-            # 将布尔数组转换为0或255的图像
             mask_gt_image = (mask_gt_binary_unit8.astype(np.uint8) * 255)  # 将True映射为255，False映射为0
             mask_pred_image = (mask_pred_uint8.astype(np.uint8) * 255)
 
             # 保存为图片
-            save_dir = f'./mask_res/{idx:02d}/masks_{idx}'
+            save_dir = f'./mask_res/{scene_name}/{clip_model.positives[k]}_lv{i}'
             os.makedirs(save_dir, exist_ok=True)
 
-            imsave(os.path.join(save_dir, f'mask_gt_{k}_{i}_og.png'), mask_gt_image)
-            imsave(os.path.join(save_dir, f'mask_pred_{k}_{i}_og.png'), mask_pred_image)  # 保存为mask_pred.png
+            imsave(os.path.join(save_dir, f'mask_gt_{clip_model.positives[k]}_lv{i}.png'), mask_gt_image)
+            imsave(os.path.join(save_dir, f'mask_pred_{clip_model.positives[k]}_lv{i}.png'), mask_pred_image)  # 保存为mask_pred.png
 
 
             # 计算 IoU（交并比）
             intersection = np.sum(np.logical_and(mask_gt_binary_unit8, mask_pred_uint8))
             union = np.sum(np.logical_or(mask_gt_unit8, mask_pred_uint8))
             iou = np.sum(intersection) / np.sum(union)
-            iou_lvl[i] = iou
 
-        score_lvl = torch.zeros((n_head,), device=valid_map.device)
+            # 第i个level在第k个prompt词下的交并比
+            iou_lv[i] = iou
+
+        
+        score_lv = torch.zeros((n_head,), device=valid_map.device)
         for i in range(n_head):
             score = valid_map[i, k].max()
-            score_lvl[i] = score
-        chosen_lvl = torch.argmax(score_lvl)
-        
-        chosen_iou_list.append(iou_lvl[chosen_lvl])
-        chosen_lvl_list.append(chosen_lvl.cpu().numpy())
+            score_lv[i] = score
+
+        # 选择score 最高的那个level
+        chosen_lv = torch.argmax(score_lv)
+        print(f"{clip_model.positives[k]}_{idx:0>5},  choose lv{chosen_lv}")
+
+        # 这个level所有语义的交并比
+        chosen_iou_list.append(iou_lv[chosen_lv])
+
+        # 被选择的level
+        chosen_lvl_list.append(chosen_lv.cpu().numpy())
         
         # save for visulsization
         save_path = image_name / f'chosen_{clip_model.positives[k]}.png'
-        vis_mask_save(mask_lvl[chosen_lvl], save_path)
+        vis_mask_save(mask_lv[chosen_lv], save_path)
 
     return chosen_iou_list, chosen_lvl_list
 
@@ -359,15 +357,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
     compressed_sem_feats = np.zeros((len(feat_dir), len(eval_index_list), *image_shape, 3), dtype=np.float32)
     
     # 每个level下的每个图片只对应一个大的语义热力图
-
     # feat_dir[0] = '/data2/jian/LangSplat/output/bed_1/train/ours_None/renders_npy'
-    # feat_dir[1] = '/data2/jian/LangSplat/output/bed_2/train/ours_None/renders_npy'
-    # feat_dir[2] = '/data2/jian/LangSplat/output/bed_3/train/ours_None/renders_npy'
     # eval_index_list[0] = 10
-    # eval_index_list[1] = 4
-    # eval_index_list[2] = 0
-    # eval_index_list[3] = 30
-    # eval_index_list[4] = 23
     print(feat_dir)
     for i in range(len(feat_dir)):
         # 加载一个level下所有的渲染出来的语义图npy路径,类似于/data2/jian/LangSplat/output/bed_1/train/ours_None/renders_npy/00.npy
@@ -391,7 +382,8 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
 
     chosen_iou_all, chosen_lvl_list = [], []
     for j, idx in enumerate(tqdm(eval_index_list)):
-        image_name = Path(output_path) / f'{idx+1:0>5}'
+        image_name = Path(output_path) / f'{idx:0>5}' # f'{idx:0>5}' = 00000
+        scene_name = os.path.basename(output_path)
         image_name.mkdir(exist_ok=True, parents=True)
         
         sem_feat = compressed_sem_feats[:, j, ...]
@@ -411,7 +403,7 @@ def evaluate(feat_dir, output_path, ae_ckpt_path, dataset_path, mask_thresh, enc
         keys = list(img_ann.keys())
         clip_model.set_positives(keys)
         c_iou_list, c_lvl = activate_stream(restored_feat, rgb_img, clip_model, image_name, img_ann,
-                                            thresh=mask_thresh, colormap_options=colormap_options,idx = idx)
+                                            thresh=mask_thresh, colormap_options=colormap_options,idx = idx, scene_name = scene_name)
         chosen_iou_all.extend(c_iou_list)
         chosen_lvl_list.extend(c_lvl)
 
