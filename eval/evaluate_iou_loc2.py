@@ -287,6 +287,9 @@ def activate_stream(sem_map,  # 语义图
             # 热力图转为二值 mask + 平滑
             mask_pred_uint8 = (output.cpu().numpy() > thresh).astype(np.uint8)
             mask_pred_uint8 = smooth(mask_pred_uint8)
+
+
+
             mask_lv[i] = mask_pred_uint8
 
             # 保存 GT 掩码（可视化用）
@@ -322,11 +325,23 @@ def activate_stream(sem_map,  # 语义图
         
         score_lv = torch.zeros((n_head,), device=valid_map.device)
         for i in range(n_head):
-            score = valid_map[i, k].max()
-            score_lv[i] = score
+            heatmap = valid_map[i, k]
+            max_val = heatmap.max()
+            threshold = 0.9 * max_val
+            high_vals = heatmap[heatmap > threshold]
+            if high_vals.numel() > 0:
+                response_score = high_vals.mean()
+            else:
+                response_score = heatmap.mean()
 
-        # 选择score 最高的那个level
+            # 计算边缘变化作为惩罚项
+            dy = heatmap[:, 1:] - heatmap[:, :-1]
+            dx = heatmap[1:, :] - heatmap[:-1, :]
+            edge_energy = dx.abs().mean() + dy.abs().mean()
+            score_lv[i] = response_score - 100 * edge_energy  # 权重可调
         chosen_lv = torch.argmax(score_lv)
+
+
         print(f"{clip_model.positives[k]}_{idx:0>5},  choose lv{chosen_lv}")
 
         # 这个level所有语义的交并比
