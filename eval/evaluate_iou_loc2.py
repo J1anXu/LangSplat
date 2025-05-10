@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"  
 
 import glob
 import random
