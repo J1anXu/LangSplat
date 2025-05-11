@@ -10,7 +10,7 @@ python evaluate_iou_loc2.py \
         --feat_dir ${root_path}/output \
         --ae_ckpt_dir ${root_path}/autoencoder/ckpt \
         --output_dir ${root_path}/eval_result \
-        --mask_thresh 0.4 \
+        --mask_thresh 0.5 \
         --encoder_dims 256 128 64 32 3 \
         --decoder_dims 16 32 64 128 256 256 512 \
         --dataset_path "../data/3dovs/"  

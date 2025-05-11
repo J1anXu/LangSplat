@@ -242,6 +242,7 @@ def activate_stream(sem_map,  # 语义图
     for k in range(n_prompt):
         iou_lv = np.zeros(n_head)
         mask_lv = np.zeros((n_head, h, w))
+        heatmap_mean_lv = np.zeros(n_head)
         # 遍历所有level
         for i in range(n_head):
 
@@ -285,7 +286,7 @@ def activate_stream(sem_map,  # 语义图
             # 热力图转为二值 mask + 平滑
             mask_pred_uint8 = (output.cpu().numpy() > thresh).astype(np.uint8)
             mask_pred_uint8 = smooth(mask_pred_uint8)
-
+            heatmap_mean_lv[i] = (output.cpu().numpy().mean())
 
 
             mask_lv[i] = mask_pred_uint8
@@ -305,11 +306,11 @@ def activate_stream(sem_map,  # 语义图
             mask_pred_image = (mask_pred_uint8.astype(np.uint8) * 255)
 
             # 保存为图片
-            save_dir = f'./mask_res/{scene_name}/{clip_model.positives[k]}_lv{i}'
+            save_dir = f'./mask_res/{scene_name}/{idx:0>5}'
             os.makedirs(save_dir, exist_ok=True)
 
-            imsave(os.path.join(save_dir, f'mask_gt_{clip_model.positives[k]}_lv{i}.png'), mask_gt_image)
-            imsave(os.path.join(save_dir, f'mask_pred_{clip_model.positives[k]}_lv{i}.png'), mask_pred_image)  # 保存为mask_pred.png
+            imsave(os.path.join(save_dir, f'mask_gt_{clip_model.positives[k]}_lv_{i}.png'), mask_gt_image)
+            imsave(os.path.join(save_dir, f'mask_pred_{clip_model.positives[k]}_lv_{i}.png'), mask_pred_image)  # 保存为mask_pred.png
 
 
             # 计算 IoU（交并比）
@@ -336,11 +337,12 @@ def activate_stream(sem_map,  # 语义图
             dy = heatmap[:, 1:] - heatmap[:, :-1]
             dx = heatmap[1:, :] - heatmap[:-1, :]
             edge_energy = dx.abs().mean() + dy.abs().mean()
-            score_lv[i] = response_score - 100 * edge_energy  # 权重可调
+            score_lv[i] = response_score - 100 * edge_energy +  heatmap_mean_lv[i] # 权重可调
+            print(f"{clip_model.positives[k]}_{idx:0>5},  score = {response_score} - {100 * edge_energy} = {score_lv[i]}, heatmap_mean = {heatmap_mean_lv[i]}")
         chosen_lv = torch.argmax(score_lv)
+        chosen_lv = torch.tensor(1, device=score_lv.device)  # 写死为 level 2，且和 score_lv 在同一个设备上
 
-
-        print(f"{clip_model.positives[k]}_{idx:0>5},  choose lv{chosen_lv}")
+        print(f"{clip_model.positives[k]}_{idx:0>5},  choose lv{chosen_lv}, iou_list = {iou_lv}")
 
         # 这个level所有语义的交并比
         chosen_iou_list.append(iou_lv[chosen_lv])
