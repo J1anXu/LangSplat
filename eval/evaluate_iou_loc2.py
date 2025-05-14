@@ -332,9 +332,9 @@ def activate_stream(sem_map,  # 语义图
             dx = heatmap[1:, :] - heatmap[:-1, :]
             edge_energy = dx.abs().mean() + dy.abs().mean()
             score_lv[i] = response_score - 100 * edge_energy +  heatmap_mean_lv[i] # 权重可调
-            print(f"{clip_model.positives[k]}_{idx:0>5},  score = {response_score} - {100 * edge_energy} = {score_lv[i]}, heatmap_mean = {heatmap_mean_lv[i]}")
+            print(f"[{idx:0>5}][{clip_model.positives[k]}],score = {response_score:.4f}-{(100 * edge_energy):.4f}={score_lv[i]:.4f},heatmap_mean={heatmap_mean_lv[i]:.4f}")
         chosen_lv = torch.argmax(score_lv)
-        print(f"{clip_model.positives[k]}_{idx:0>5},  choose lv{chosen_lv}, iou_list = {iou_lv}")
+        print(f"{clip_model.positives[k]}_{idx:0>5},  choose[{chosen_lv}], iou_list = {iou_lv:.4f}")
 
         # 这个level所有语义的交并比
         chosen_iou_list.append(iou_lv[chosen_lv])
