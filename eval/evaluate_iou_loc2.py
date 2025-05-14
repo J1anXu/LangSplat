@@ -150,12 +150,6 @@ def eval_gt_lerfdata(dataset_path, dataset_name) -> Dict:
     # segmentations_path = os.path.join(dataset_path, 'segmentations')
     # # 获取 segmentations_path 下所有子文件夹的名称
 
-    json_path = os.path.expanduser('~/LangSplat/eval/3dovs_feature_map_order.json')
-    with open(json_path, 'r') as f:
-        config = json.load(f)
-    # 提取 file_order 列表 这是featuremap的真实顺序
-    file_order = config.get(dataset_name, [])
-
     segmentations_path = f"{dataset_path}/segmentations"
     temp_save_path = os.path.expanduser('~/LangSplat/temp_ovs')
     os.makedirs(temp_save_path, exist_ok=True)
@@ -340,8 +334,6 @@ def activate_stream(sem_map,  # 语义图
             score_lv[i] = response_score - 100 * edge_energy +  heatmap_mean_lv[i] # 权重可调
             print(f"{clip_model.positives[k]}_{idx:0>5},  score = {response_score} - {100 * edge_energy} = {score_lv[i]}, heatmap_mean = {heatmap_mean_lv[i]}")
         chosen_lv = torch.argmax(score_lv)
-        chosen_lv = torch.tensor(1, device=score_lv.device)  # 写死为 level 2，且和 score_lv 在同一个设备上
-
         print(f"{clip_model.positives[k]}_{idx:0>5},  choose lv{chosen_lv}, iou_list = {iou_lv}")
 
         # 这个level所有语义的交并比

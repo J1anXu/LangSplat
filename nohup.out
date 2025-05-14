@@ -1,271 +1,79 @@
 Processing bed
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/bed_lv.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/bed_lv.log: No such file or directory
-Processing bed
-Processing bed
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3395859 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3573642 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3573644 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3573643 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3575054 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3575055 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3575056 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing bench
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/bench.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/bench.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3575295 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3577824 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3577825 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3577826 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3578190 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3578191 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3578192 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing blue_sofa
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/blue_sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/blue_sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3578361 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3589180 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3589181 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3589182 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3589363 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3589364 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3589365 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing covered_desk
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/covered_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/covered_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3589552 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3596160 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3596161 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3596162 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3596343 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3596344 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3596345 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing lawn
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/lawn.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/lawn.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3596514 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3598879 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3598880 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3598881 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3599061 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3599062 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3599063 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing office_desk
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/office_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/office_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3599231 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3608266 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3608267 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3608268 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3608447 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3608448 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3608449 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing room
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/room.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/room.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3608633 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3616255 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3616256 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3616257 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3616436 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3616437 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3616438 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing snacks
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/snacks.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/snacks.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3616602 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3621713 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3621714 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3621715 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3621890 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3621891 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3621892 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing sofa
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv3.log: No such file or directory
+scripts/3dovs_baseline.sh: line 29: 3622057 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3626540 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3626541 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 51: 3626542 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3626721 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3626722 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
+scripts/3dovs_baseline.sh: line 61: 3626723 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_lv${level}.log 2>&1
 Processing table
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/table.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/table.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv3.log: No such file or directory
-开始评估 bed 使用 GPU 2
-开始评估 bench 使用 GPU 3
-开始评估 blue_sofa 使用 GPU 4
-开始评估 covered_desk 使用 GPU 5
-开始评估 lawn 使用 GPU 2
-开始评估 office_desk 使用 GPU 3
-开始评估 room 使用 GPU 4
-开始评估 snacks 使用 GPU 5
-开始评估 sofa 使用 GPU 2
-开始评估 table 使用 GPU 3
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/bed.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/bench.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/blue_sofa.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/covered_desk.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/lawn.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/room.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/snacks.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/office_desk.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/table.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/sofa.log: No such file or directory
-所有任务完成
-Processing bed
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bed_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bed_lv1.log: No such file or directory
-Processing bench
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/bench.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/bench.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/bench_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/bench_lv3.log: No such file or directory
-Processing blue_sofa
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/blue_sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/blue_sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/blue_sofa_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/blue_sofa_lv3.log: No such file or directory
-Processing covered_desk
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/covered_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/covered_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/covered_desk_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/covered_desk_lv3.log: No such file or directory
-Processing lawn
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/lawn.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/lawn.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/lawn_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/lawn_lv3.log: No such file or directory
-Processing office_desk
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/office_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/office_desk.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/office_desk_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/office_desk_lv3.log: No such file or directory
-Processing room
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/room.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/room.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/room_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/room_lv3.log: No such file or directory
-Processing snacks
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/snacks.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/snacks.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/snacks_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/snacks_lv3.log: No such file or directory
-Processing sofa
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/sofa.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/sofa_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/sofa_lv3.log: No such file or directory
-Processing table
-scripts/3dovs_baseline.sh: line 18: cd: autoencoder: No such file or directory
-scripts/3dovs_baseline.sh: line 20: ../logs/langsplat/train_ae/table.log: No such file or directory
-scripts/3dovs_baseline.sh: line 30: ../logs/langsplat/render_ae/table.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 42: logs/langsplat/train/table_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv1.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv2.log: No such file or directory
-scripts/3dovs_baseline.sh: line 55: logs/langsplat/render/table_lv3.log: No such file or directory
-开始评估 bed 使用 GPU 2
-开始评估 bench 使用 GPU 3
-开始评估 blue_sofa 使用 GPU 4
-开始评估 covered_desk 使用 GPU 5
-开始评估 lawn 使用 GPU 2
-开始评估 office_desk 使用 GPU 3
-开始评估 room 使用 GPU 4
-开始评估 snacks 使用 GPU 5
-开始评估 sofa 使用 GPU 2
-开始评估 table 使用 GPU 3
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/bed.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/blue_sofa.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/bench.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/covered_desk.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/office_desk.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/sofa.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/lawn.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/room.log: No such file or directory
-bash: line 2: cd: eval: No such file or directory
-bash: line 3: ../logs/langsplat/eval/snacks.log: No such file or directory
-bash: line 3: ../logs/langsplat/eval/table.log: No such file or directory
 所有任务完成
 Processing bed
 Processing bench
-scripts/3dovs_baseline.sh: line 69: syntax error: unexpected end of file
-scripts/3dovs_baseline.sh: line 61: syntax error near unexpected token `do'
-scripts/3dovs_baseline.sh: line 61: `    do'
-Processing bed
-Processing bed
-Processing bench
 Processing blue_sofa
 Processing covered_desk
 Processing lawn
@@ -274,61 +82,4 @@ Processing room
 Processing snacks
 Processing sofa
 Processing table
-scripts/3dovs_baseline.sh: line 67: t: command not found
 所有任务完成
-scripts/3dovs_baseline.sh: line 47: 3115798 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
-scripts/3dovs_baseline.sh: line 47: 3116394 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}_lv${level}.log 2>&1  (wd: ~/LangSplat/autoencoder)
-scripts/3dovs_baseline.sh: line 27: 3489430 Killed                  CUDA_VISIBLE_DEVICES=3 nohup python train.py --dataset_path ../data/3dovs/${casename} --dataset_name ${casename} --encoder_dims 256 128 64 32 3 --decoder_dims 16 32 64 128 256 256 512 --lr 0.0007 > ../logs/langsplat/train_ae/${casename}.log 2>&1
-scripts/3dovs_baseline.sh: line 57: 3116398 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
-Processing bench
-scripts/3dovs_baseline.sh: line 57: 3115800 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} > logs/langsplat/train/${casename}_lv${level}.log 2>&1
-Processing bench
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/bench_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/bench_lv3.log: No such file or directory
-Processing blue_sofa
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/blue_sofa_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/blue_sofa_lv3.log: No such file or directory
-Processing covered_desk
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/covered_desk_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/covered_desk_lv3.log: No such file or directory
-Processing lawn
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/lawn_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/lawn_lv3.log: No such file or directory
-Processing office_desk
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/office_desk_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/office_desk_lv3.log: No such file or directory
-Processing room
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/room_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/room_lv3.log: No such file or directory
-Processing snacks
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/snacks_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/snacks_lv3.log: No such file or directory
-Processing sofa
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/sofa_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/sofa_lv3.log: No such file or directory
-Processing table
-scripts/3dovs_baseline.sh: line 19: logs/langsplat/train_ae/table_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 29: logs/langsplat/render_ae/table_lv3.log: No such file or directory
-scripts/3dovs_baseline.sh: line 66: syntax error near unexpected token `done'
-scripts/3dovs_baseline.sh: line 66: `done'
-Processing blue_sofa
-Processing blue_sofa
-Processing covered_desk
-Processing covered_desk
-Processing lawn
-Processing lawn
-Processing office_desk
-Processing office_desk
-Processing room
-Processing room
-Processing snacks
-Processing snacks
-Processing sofa
-Processing table
-scripts/3dovs_baseline.sh: line 59: t: command not found
-scripts/3dovs_baseline.sh: line 66: syntax error near unexpected token `done'
-scripts/3dovs_baseline.sh: line 66: `done'
-Processing sofa
-Processing table
-scripts/3dovs_baseline.sh: line 61: syntax error near unexpected token `&'
-scripts/3dovs_baseline.sh: line 61: `&1 &'
