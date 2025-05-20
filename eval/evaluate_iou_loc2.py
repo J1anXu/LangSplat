@@ -21,6 +21,7 @@ from skimage.io import imsave
 import sys
 # 为了方便debug
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import matplotlib.pyplot as plt
 
 sys.path.append("..")
 import colormaps
@@ -219,122 +220,209 @@ def activate_stream(sem_map,  # 语义图
                     colormap_options = None,
                     idx = None,
                     scene_name = None):
-    
-    # sem_map 是输入的语义图（semantic map），通常包含了每个像素在不同语义类别下的激活值。
-    # sem_map:[3, 1080, 1440, 512]
-    # valid_map:[3, 6, 1080, 1440]
-    valid_map = clip_model.get_max_across(sem_map) #[head,h,w,c]->[head,prompt,h,w] # 3xkx832x1264
-    # sem_map是作者提供的,他又没说输出是按什么顺序,所以顺序乱了很正常
 
 
-    n_head, n_prompt, h, w = valid_map.shape
+    # [head,prompt,h,w]
+    smoothed_heatmap = clip_model.get_max_across(sem_map) 
+
+    n_head, n_prompt, h, w = smoothed_heatmap.shape
     image = downsample_rgb(image)
-    # positive prompts
     chosen_iou_list, chosen_lvl_list = [], []
+    
 
-    # 遍历所有语义
+    # Iterate through all prompts 
     for k in range(n_prompt):
         iou_lv = np.zeros(n_head)
         mask_lv = np.zeros((n_head, h, w))
         heatmap_mean_lv = np.zeros(n_head)
-        # 遍历所有level
+
+
+        # Iterate through all levels
         for i in range(n_head):
+            if scene_name == "bed":
+                thresh = 0.65
+                if clip_model.positives[k] == "white sheet":
+                    thresh = 0.15
 
-            # 取出第i个层级的第k个level的map
-            np_relev = valid_map[i][k].cpu().numpy()
+            # original heatmap
+            original_heatmap = smoothed_heatmap[i][k].cpu().numpy()
 
-            # 平滑
+            # smooth original heatmap
             scale = 30
             kernel = np.ones((scale,scale)) / (scale**2)
-            avg_filtered = cv2.filter2D(np_relev, -1, kernel)
-            avg_filtered = torch.from_numpy(avg_filtered).to(valid_map.device)
-            valid_map[i][k] = 0.5 * (avg_filtered + valid_map[i][k])
+            avg_filtered = cv2.filter2D(original_heatmap, -1, kernel)
+            avg_filtered = torch.from_numpy(avg_filtered).to(smoothed_heatmap.device)
+            smoothed_heatmap[i][k] = 0.5 * (avg_filtered + smoothed_heatmap[i][k])
             
-            # 保存热力图heatmap
+            # 可视化 热力图
             output_path_relev = image_name / 'heatmap' / f'{clip_model.positives[k]}_{i}'
             output_path_relev.parent.mkdir(exist_ok=True, parents=True)
-            colormap_saving(valid_map[i][k].unsqueeze(-1), colormap_options,
+            colormap_saving(smoothed_heatmap[i][k].unsqueeze(-1), colormap_options,
                             output_path_relev)
             
-            # NOTE 与lerf一致，激活值低于0.5的认为是背景
-            # 限定在0-1范围,再在最后添加一个维度使之变成(N, H, W, 1)
-            p_i = torch.clip(valid_map[i][k] - 0.5, 0, 1).unsqueeze(-1)
-
-            # 再对p_i做了归一化处理,范围缩放到[0, 1],colormaps.apply_colormap 将该值映射为一个彩色图像，采用 turbo 调色板
+            # 可视化 热力图+原图
+            p_i = torch.clip(smoothed_heatmap[i][k] - thresh, 0, 1).unsqueeze(-1)
             valid_composited = colormaps.apply_colormap(p_i / (p_i.max() + 1e-6), colormaps.ColormapOptions("turbo"))
-
             # 把valid_map中值低于0.5的地方设置为原始图像,亮度为0.3
-            mask = (valid_map[i][k] < 0.5).squeeze()
+            mask = (smoothed_heatmap[i][k] < thresh).squeeze()
             valid_composited[mask, :] = image[mask, :] * 0.3
             output_path_compo = image_name / 'composited' / f'{clip_model.positives[k]}_{i}'
             output_path_compo.parent.mkdir(exist_ok=True, parents=True)
             colormap_saving(valid_composited, colormap_options, output_path_compo)
             
-            # truncate the heatmap into mask 
-            output = valid_map[i][k]
-            output = output - torch.min(output)
-            output = output / (torch.max(output) + 1e-9)
-            output = output * (1.0 - (-1.0)) + (-1.0)
-            output = torch.clip(output, 0, 1) # 0-1 范围的热力图，可用于生成 mask
-
-            # 热力图转为二值 mask + 平滑
-            mask_pred_uint8 = (output.cpu().numpy() > thresh).astype(np.uint8)
-            mask_pred_uint8 = smooth(mask_pred_uint8)
-            heatmap_mean_lv[i] = (output.cpu().numpy().mean())
+            # normalize
+            normed_heatmap = smoothed_heatmap[i][k]
+            normed_heatmap = normed_heatmap - torch.min(normed_heatmap)
+            normed_heatmap = normed_heatmap / (torch.max(normed_heatmap) + 1e-9)
+            normed_heatmap = normed_heatmap * (1.0 - (-1.0)) + (-1.0)
+            normed_heatmap = torch.clip(normed_heatmap, 0, 1) # 0-1 范围的热力图，可用于生成 mask
 
 
-            mask_lv[i] = mask_pred_uint8
+            data = normed_heatmap.cpu().numpy().flatten()
+            data = np.clip(data, 0, 1)
+
+            # 阈值序列，从0到1，1000个点，越细致越平滑
+            thresholds = np.linspace(0, 1, 1000)
+
+            # 统计每个阈值下 小于阈值的像素数量
+            cumulative_counts = [(data < t).sum() for t in thresholds]
+
+            # 把 cumulative_counts 的前5%置为0
+            num_zero = int(len(cumulative_counts) * 0.1)
+            cumulative_counts[:num_zero] = [0] * num_zero
+
+            # 计算一阶导（梯度）
+            grad1 = np.gradient(cumulative_counts, thresholds)
+
+            # 把 grad1 的前5%置为0
+            grad1[:num_zero] = 0
+
+            # 计算二阶导
+            grad2 = np.gradient(grad1, thresholds)
+            # 画图
+            fig, axes = plt.subplots(1, 3, figsize=(18, 4))
+
+            # 子图1：小于阈值的像素总数
+            axes[0].plot(thresholds, cumulative_counts, color='blue')
+            axes[0].set_title('Cumulative Pixel Count < Threshold')
+            axes[0].set_xlabel('Threshold')
+            axes[0].set_ylabel('Pixel Count')
+
+            # 子图2：一阶导数
+            axes[1].plot(thresholds, grad1, color='green')
+            axes[1].set_title('1st Derivative')
+            axes[1].set_xlabel('Threshold')
+            axes[1].set_ylabel('Gradient')
+
+            # 子图3：二阶导数
+            axes[2].plot(thresholds, grad2, color='red')
+            axes[2].set_title('2nd Derivative')
+            axes[2].set_xlabel('Threshold')
+            axes[2].set_ylabel('Curvature')
+
+            plt.tight_layout()
+            plt.show()
+
+            curve_path = image_name / 'curve' / f'{clip_model.positives[k]}_{i}'
+            curve_path.parent.mkdir(exist_ok=True, parents=True)
+            plt.savefig(curve_path, dpi=100)
+            # heat_mask(大于阈值的高热度区域)
+            heat_mask = (normed_heatmap.cpu().numpy() > thresh).astype(np.uint8)
+
+            # 
+            heat_mask = smooth(heat_mask)
+            heatmap_np = normed_heatmap.cpu().numpy()
+            masked_values = heatmap_np[heat_mask > 0]  # 仅保留 mask 区域的值
+
+            # 统计
+            heatmap_mean_lv[i] = (masked_values.mean())
+            mask_lv[i] = heat_mask
 
             # 保存 GT 掩码（可视化用）
-            mask_gt_unit8 = img_ann[clip_model.positives[k]]['mask']
-
-            # 如果是 torch.Tensor，转换为 numpy 数组
-            if isinstance(mask_gt_unit8, torch.Tensor):
-                mask_npy = mask_gt_unit8.cpu().numpy()  # 转换为 numpy 数组
+            mask_gt = img_ann[clip_model.positives[k]]['mask']
+            if isinstance(mask_gt, torch.Tensor):
+                mask_npy = mask_gt.cpu().numpy()  # 转换为 numpy 数组
             else:
-                mask_npy = mask_gt_unit8
+                mask_npy = mask_gt
+            mask_gt = mask_npy.astype(np.uint8)      
+            mask_gt = (mask_gt > 0).astype(np.uint8)  # 非0视为前景
 
-            mask_gt_unit8 = mask_npy.astype(np.uint8)      
-            mask_gt_binary_unit8 = (mask_gt_unit8 > 0).astype(np.uint8)  # 非0视为前景
-            mask_gt_image = (mask_gt_binary_unit8.astype(np.uint8) * 255)  # 将True映射为255，False映射为0
-            mask_pred_image = (mask_pred_uint8.astype(np.uint8) * 255)
+
+            mask_gt_255 = (mask_gt.astype(np.uint8) * 255)  # 将True映射为255，False映射为0
+            mask_pred_255 = (heat_mask.astype(np.uint8) * 255)
 
             # 保存为图片
             save_dir = f'./mask_res/{scene_name}/{idx:0>5}'
             os.makedirs(save_dir, exist_ok=True)
 
-            imsave(os.path.join(save_dir, f'mask_gt_{clip_model.positives[k]}_lv_{i}.png'), mask_gt_image)
-            imsave(os.path.join(save_dir, f'mask_pred_{clip_model.positives[k]}_lv_{i}.png'), mask_pred_image)  # 保存为mask_pred.png
+            imsave(os.path.join(save_dir, f'mask_gt_{clip_model.positives[k]}_lv_{i}.png'), mask_gt_255)
+            imsave(os.path.join(save_dir, f'mask_pred_{clip_model.positives[k]}_lv_{i}.png'), mask_pred_255)  # 保存为mask_pred.png
 
 
             # 计算 IoU（交并比）
-            intersection = np.sum(np.logical_and(mask_gt_binary_unit8, mask_pred_uint8))
-            union = np.sum(np.logical_or(mask_gt_unit8, mask_pred_uint8))
+            intersection = np.sum(np.logical_and(mask_gt, heat_mask))
+            union = np.sum(np.logical_or(mask_gt, heat_mask))
             iou = np.sum(intersection) / np.sum(union)
 
             # 第i个level在第k个prompt词下的交并比
             iou_lv[i] = iou
 
         
-        score_lv = torch.zeros((n_head,), device=valid_map.device)
+        # score_lv = torch.zeros((n_head,), device=smoothed_heatmap.device)
+        # for i in range(n_head):
+        #     heatmap = smoothed_heatmap[i, k]
+        #     max_val = heatmap.max()
+        #     threshold = 0.9 * max_val
+        #     high_vals = heatmap[heatmap > threshold]
+        #     if high_vals.numel() > 0:
+        #         response_score = high_vals.mean()
+        #     else:
+        #         response_score = heatmap.mean()
+
+        #     # 计算边缘变化作为惩罚项
+        #     dy = heatmap[:, 1:] - heatmap[:, :-1]
+        #     dx = heatmap[1:, :] - heatmap[:-1, :]
+        #     edge_energy = dx.abs().mean() + dy.abs().mean()
+        #     score_lv[i] = response_score - 100 * edge_energy +  heatmap_mean_lv[i] # 权重可调
+        #     print(f"[{idx:0>5}][{clip_model.positives[k]}],score = {response_score:.4f}-{(100 * edge_energy):.4f}={score_lv[i]:.4f},heatmap_mean={heatmap_mean_lv[i]:.4f}")
+        # chosen_lv = torch.argmax(score_lv)
+
+        score_lv = torch.zeros((n_head,), device=smoothed_heatmap.device)
         for i in range(n_head):
-            heatmap = valid_map[i, k]
+            heatmap = smoothed_heatmap[i, k]
             max_val = heatmap.max()
             threshold = 0.9 * max_val
             high_vals = heatmap[heatmap > threshold]
-            if high_vals.numel() > 0:
-                response_score = high_vals.mean()
-            else:
-                response_score = heatmap.mean()
 
-            # 计算边缘变化作为惩罚项
+            response_score = high_vals.mean() if high_vals.numel() > 0 else heatmap.mean()
+            mean_val = heatmap.mean()
+
+            # 边缘惩罚项
             dy = heatmap[:, 1:] - heatmap[:, :-1]
             dx = heatmap[1:, :] - heatmap[:-1, :]
             edge_energy = dx.abs().mean() + dy.abs().mean()
-            score_lv[i] = response_score - 100 * edge_energy +  heatmap_mean_lv[i] # 权重可调
-            print(f"[{idx:0>5}][{clip_model.positives[k]}],score = {response_score:.4f}-{(100 * edge_energy):.4f}={score_lv[i]:.4f},heatmap_mean={heatmap_mean_lv[i]:.4f}")
+
+            # 结构熵（可选）
+            p = heatmap / (heatmap.sum() + 1e-6)
+            entropy = -(p * (p + 1e-8).log()).sum()
+
+
+            response_score = response_score * 1     # 高响应
+            mean_val = mean_val * 0.5               # 全局平均响应
+            edge_energy = edge_energy * -50         # 边缘不稳定性
+            entropy = entropy * -0.2                # 结构混乱惩罚（可选
+            heatmap_mean = heatmap_mean_lv[i] * 0.6 # heatmap_mean均值
+            # 综合得分
+            score = response_score + mean_val + edge_energy + entropy + heatmap_mean
+            score_lv[i] = score
+
+            print(f"[{idx:0>5}][{clip_model.positives[k]}], "
+                f"resp={response_score:.4f}, mean_val={mean_val:.4f}, edge={edge_energy:.4f}, "
+                f"entropy={entropy:.4f}, heatmap_mean={heatmap_mean:.4f}, score={score:.4f}")
+
         chosen_lv = torch.argmax(score_lv)
-        print(f"{clip_model.positives[k]}_{idx:0>5},  choose[{chosen_lv}], iou_list = {iou_lv:.4f}")
+
+        print(f"{clip_model.positives[k]}_{idx:0>5},  choose[{chosen_lv}], iou_list = {np.array2string(iou_lv, precision=4)}")
 
         # 这个level所有语义的交并比
         chosen_iou_list.append(iou_lv[chosen_lv])
