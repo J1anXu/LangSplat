@@ -76,7 +76,6 @@ if __name__ == '__main__':
             l2loss = l2_loss(outputs, data) 
             cosloss = cos_loss(outputs, data)
             loss = l2loss + cosloss * 0.001
-            
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -86,8 +85,9 @@ if __name__ == '__main__':
             tb_writer.add_scalar('train_loss/cos_loss', cosloss.item(), global_iter)
             tb_writer.add_scalar('train_loss/total_loss', loss.item(), global_iter)
             tb_writer.add_histogram("feat", outputs, global_iter)
-
-        if epoch > 95:
+            
+        print("loss:{:.8f}".format(loss))
+        if epoch > 0.95*num_epochs:
             eval_loss = 0.0
             model.eval()
             for idx, feature in enumerate(test_loader):
