@@ -407,9 +407,9 @@ def activate_stream(sem_map,  # 语义图
             entropy = -(p * (p + 1e-8).log()).sum()
 
 
-            response_score = response_score * 1.1   # 高响应 (不要修改)
+            response_score = response_score * 1   # 高响应 (不要修改)
             mean_val = mean_val * 0.5               # 全局平均响应
-            edge_energy = edge_energy * -20         # 边缘不稳定性
+            edge_energy = edge_energy * -30         # 边缘不稳定性
             entropy = entropy * -0.2                # 结构混乱惩罚（可选
             heatmap_mean = heatmap_mean_lv[i] * 0.6 # heatmap_mean均值
             # 综合得分

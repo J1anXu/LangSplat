@@ -83,3 +83,131 @@ Processing snacks
 Processing sofa
 Processing table
 所有任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+1 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+2 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+3 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+4 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+5 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+6 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+7 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+8 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+9 任务完成
+开始处理 room
+开始处理 room
+开始评估 room 使用 GPU 3
+开始评估 room 使用 GPU 4
+10 任务完成
+开始处理 sofa
+开始评估 sofa 使用 GPU 3
+1 任务完成
+开始处理 sofa
+开始评估 sofa 使用 GPU 3
+2 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2333505 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2333506 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2333507 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2333842 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2333843 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2333844 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+3 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2334221 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2334222 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2334223 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2334400 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2334401 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2334402 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+4 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2334753 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2334754 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2334755 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2334924 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2334925 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2334926 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+5 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2335268 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2335269 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2335270 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2335441 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2335442 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2335443 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+6 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2335767 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2335768 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2335769 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2335943 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2335944 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2335945 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+7 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2336269 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2336270 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2336271 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2336444 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2336445 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2336446 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+8 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2336798 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2336799 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2336800 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2336970 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2336971 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2336972 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+9 任务完成
+开始处理 sofa
+scripts/3dovs_baseline_x10.sh: line 30: 2337315 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2337316 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 30: 2337317 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python train.py -s data/3dovs/${casename} -m output/${casename} --start_checkpoint data/3dovs/${casename}/output/${casename}/chkpnt30000.pth --port 600${level} --feature_level ${level} --baseline_idx ${baseline_idx} > logs/langsplat/train/${casename}_train_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2337492 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2337493 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+scripts/3dovs_baseline_x10.sh: line 41: 2337494 Killed                  CUDA_VISIBLE_DEVICES=$((level+2)) nohup python render.py -m output/${casename}_${level} --include_feature > logs/langsplat/render/${casename}_render_lv${level}.log 2>&1
+开始评估 sofa 使用 GPU 3
+10 任务完成
